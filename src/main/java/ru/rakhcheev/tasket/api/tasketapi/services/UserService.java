@@ -1,6 +1,6 @@
 package ru.rakhcheev.tasket.api.tasketapi.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
 import ru.rakhcheev.tasket.api.tasketapi.entity.UserEntity;
@@ -17,14 +17,19 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UserService(UserRepo userRepo, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.userRepo = userRepo;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     public UserEntity addUser(UserEntity user) throws UserAlreadyExistException {
         if (userRepo.findByLogin(user.getLogin()) != null) throw  new UserAlreadyExistException("Пользователь уже сущесвует");
         DescriptionEntity descriptionEntity = new DescriptionEntity();
-        descriptionEntity.setAbout("Я JS Программист");
         user.setDescription(descriptionEntity);
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
 
@@ -48,7 +53,7 @@ public class UserService {
         UserEntity user = getUserFromDatabase(id);
         if(newUserParams.getLogin() != null) user.setLogin(newUserParams.getLogin());
         if(newUserParams.getEmail() != null) user.setEmail(newUserParams.getEmail());
-        if(newUserParams.getPassword() != null) user.setPassword(newUserParams.getPassword());
+        if(newUserParams.getPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(newUserParams.getPassword()));
         userRepo.save(user);
     }
 
@@ -63,7 +68,5 @@ public class UserService {
         if(userEntityOptional.isEmpty()) throw new UserNotFoundException("Пользователь не найден");
         return userEntityOptional.get();
     }
-
-
 
 }

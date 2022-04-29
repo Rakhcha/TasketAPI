@@ -33,6 +33,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity getUsers(@RequestParam(value = "showDescription", defaultValue = "false") Boolean showDescription){
         try {
+            System.out.println("dsadasd");
             return ResponseEntity.ok().body(userService.getAllUsers(showDescription));
         } catch (UserDatabaseIsEmptyException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
