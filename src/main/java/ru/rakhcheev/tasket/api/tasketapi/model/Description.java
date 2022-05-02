@@ -16,8 +16,8 @@ public class Description {
     public Description() {
     }
 
-    public static Description toModel(DescriptionEntity descriptionEntity){
-        if(descriptionEntity == null) return null;
+    public static Description toModel(DescriptionEntity descriptionEntity) {
+        if (descriptionEntity == null) return null;
         Description description = new Description();
         description.setAbout(descriptionEntity.getAbout());
         description.setCity(descriptionEntity.getCity());

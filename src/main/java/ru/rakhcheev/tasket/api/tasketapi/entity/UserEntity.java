@@ -62,7 +62,7 @@ public class UserEntity {
     }
 
     public void setDescription(DescriptionEntity description) {
-        if(description != null) description.setUser(this);
+        if (description != null) description.setUser(this);
         this.description = description;
     }
 }

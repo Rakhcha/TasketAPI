@@ -6,5 +6,4 @@ import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
 public interface DescriptionRepo extends CrudRepository<DescriptionEntity, Long> {
 
 
-
 }

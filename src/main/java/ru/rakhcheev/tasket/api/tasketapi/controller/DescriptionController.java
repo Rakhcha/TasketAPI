@@ -18,26 +18,26 @@ public class DescriptionController {
     private DescriptionService descriptionService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
-    public ResponseEntity getDescriptionById(@PathVariable Long id){
-        try{
+    public ResponseEntity getDescriptionById(@PathVariable Long id) {
+        try {
             return ResponseEntity.ok().body(descriptionService.getByUserId(id));
         } catch (DescriptionIsNotFoundException | DescriptionTableIsEmptyException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка при запросе");
         }
     }
 
     @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity getDescriptionById(@RequestHeader(value = "Authorization", defaultValue = "-1") String token,
-                                             @RequestBody DescriptionEntity newDescriptionEntity){
-        try{
-            if(token.equals("-1")) throw new AuthorizationTokenIsNullException("Нет доступа");
-            descriptionService.updateDescription(token,newDescriptionEntity);
+                                             @RequestBody DescriptionEntity newDescriptionEntity) {
+        try {
+            if (token.equals("-1")) throw new AuthorizationTokenIsNullException("Нет доступа");
+            descriptionService.updateDescription(token, newDescriptionEntity);
             return ResponseEntity.ok().body(token);
         } catch (DescriptionIsNotFoundException | DescriptionTableIsEmptyException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка при запросе");
         }
     }
