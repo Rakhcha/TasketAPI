@@ -1,21 +1,27 @@
 package ru.rakhcheev.tasket.api.tasketapi.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
-import ru.rakhcheev.tasket.api.tasketapi.exception.AuthorizationTokenIsNullException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.DescriptionIsNotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.DescriptionTableIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.services.DescriptionService;
+import ru.rakhcheev.tasket.api.tasketapi.services.UserService;
 
 @Controller
 @RequestMapping("/description")
 public class DescriptionController {
 
-    @Autowired
-    private DescriptionService descriptionService;
+    private final DescriptionService descriptionService;
+
+    public DescriptionController(DescriptionService descriptionService, UserService userService) {
+        this.descriptionService = descriptionService;
+    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
     public ResponseEntity getDescriptionById(@PathVariable Long id) {
@@ -29,12 +35,11 @@ public class DescriptionController {
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity getDescriptionById(@RequestHeader(value = "Authorization", defaultValue = "-1") String token,
-                                             @RequestBody DescriptionEntity newDescriptionEntity) {
+    public ResponseEntity getDescriptionById(Authentication authentication,
+                                             @RequestBody DescriptionEntity newDescriptionEntity ) {
         try {
-            if (token.equals("-1")) throw new AuthorizationTokenIsNullException("Нет доступа");
-            descriptionService.updateDescription(token, newDescriptionEntity);
-            return ResponseEntity.ok().body(token);
+            descriptionService.updateDescription(authentication.getName(), newDescriptionEntity);
+            return ResponseEntity.ok().body("Данные обновлены ");
         } catch (DescriptionIsNotFoundException | DescriptionTableIsEmptyException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {

@@ -39,7 +39,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                     userData.getLogin(), userData.getPassword(), new ArrayList<>()
             ));
         } catch (IOException e) {
-            throw new RuntimeException();
+            throw new NullPointerException("Недостаточно данных в запросе");
         }
     }
 

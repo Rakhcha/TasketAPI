@@ -69,4 +69,11 @@ public class UserService {
         return userEntityOptional.get();
     }
 
+    private UserEntity getUserFromDatabase(String login) throws UserDatabaseIsEmptyException, UserNotFoundException {
+        if (!userRepo.findAll().iterator().hasNext()) throw new UserDatabaseIsEmptyException("База данных пользователей пуста");
+        UserEntity userEntity = userRepo.findByLogin(login);
+        if(userEntity == null) throw new UserNotFoundException("Пользователь не найден");
+        return userEntity;
+    }
+
 }
