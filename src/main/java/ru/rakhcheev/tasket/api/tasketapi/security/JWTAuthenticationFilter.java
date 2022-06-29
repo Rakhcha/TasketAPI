@@ -18,10 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static ru.rakhcheev.tasket.api.tasketapi.security.SecurityConstants.*;
-
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
 
     private final AuthenticationManager authenticationManager;
 
@@ -45,12 +42,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
-
         String token = JWT.create()
                 .withSubject(((User) authResult.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .sign(Algorithm.HMAC512(SECRET.getBytes()));
-        response.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+                .withExpiresAt(new Date(System.currentTimeMillis() + JWTConfiguration.EXPIRATION_TIME))
+                .sign(Algorithm.HMAC512(JWTConfiguration.SECRET.getBytes()));
+        response.addHeader(JWTConfiguration.HEADER_STRING, JWTConfiguration.TOKEN_PREFIX + token);
 
     }
 }

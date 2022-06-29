@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static ru.rakhcheev.tasket.api.tasketapi.security.SecurityConstants.*;
-
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     public JWTAuthorizationFilter(AuthenticationManager authenticationManager) {
@@ -24,9 +22,9 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String header = request.getHeader(HEADER_STRING);
+        String header = request.getHeader(JWTConfiguration.HEADER_STRING);
 
-        if (header == null || !header.startsWith(TOKEN_PREFIX)) {
+        if (header == null || !header.startsWith(JWTConfiguration.TOKEN_PREFIX)) {
             chain.doFilter(request, response);
             return;
         }
@@ -38,12 +36,12 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        String token = request.getHeader(HEADER_STRING);
+        String token = request.getHeader(JWTConfiguration.HEADER_STRING);
         if (token == null) return null;
 
         try {
-            String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes())).build()
-                    .verify(token.replace(TOKEN_PREFIX, ""))
+            String user = JWT.require(Algorithm.HMAC512(JWTConfiguration.SECRET.getBytes())).build()
+                    .verify(token.replace(JWTConfiguration.TOKEN_PREFIX, ""))
                     .getSubject();
             return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
         } catch (Exception e) {

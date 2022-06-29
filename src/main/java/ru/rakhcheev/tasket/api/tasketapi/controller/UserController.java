@@ -9,6 +9,7 @@ import ru.rakhcheev.tasket.api.tasketapi.exception.UserDatabaseIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.UserNotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.services.UserService;
 
+import javax.annotation.security.RolesAllowed;
 
 @RestController
 @RequestMapping("/users")
@@ -18,6 +19,7 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping(method = RequestMethod.POST)
+    @RolesAllowed(value = "Admin")
     public ResponseEntity addUser(@RequestBody UserEntity user) {
         try {
             userService.addUser(user);
