@@ -1,8 +1,10 @@
 package ru.rakhcheev.tasket.api.tasketapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 import ru.rakhcheev.tasket.api.tasketapi.entity.UserEntity;
 
+@Data
 public class User {
 
     private Long id;
@@ -11,7 +13,7 @@ public class User {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Description description;
 
-    public User() {
+    private User() {
     }
 
     public static User toModel(UserEntity userEntity) {
@@ -21,37 +23,5 @@ public class User {
         model.setEmail(userEntity.getEmail());
         model.setDescription(Description.toModel(userEntity.getDescription()));
         return model;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Description getDescription() {
-        return description;
-    }
-
-    public void setDescription(Description description) {
-        this.description = description;
     }
 }
