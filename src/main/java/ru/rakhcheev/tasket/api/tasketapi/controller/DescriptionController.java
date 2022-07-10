@@ -35,7 +35,7 @@ public class DescriptionController {
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity getDescriptionById(Authentication authentication,
+    public ResponseEntity updateDescriptionByAuthentication(Authentication authentication,
                                              @RequestBody DescriptionEntity newDescriptionEntity ) {
         try {
             descriptionService.updateDescription(authentication.getName(), newDescriptionEntity);
