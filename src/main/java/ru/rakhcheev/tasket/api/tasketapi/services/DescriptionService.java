@@ -24,21 +24,30 @@ public class DescriptionService {
         return getDescriptionFromDatabase(user_id);
     }
 
-    public void updateDescription(String login, DescriptionEntity newDescriptionEntity) throws DescriptionTableIsEmptyException, DescriptionIsNotFoundException{
-        DescriptionEntity entity = getDescriptionFromDatabase(userRepo.findByLogin(login).getId());
+    public void updateDescriptionByLogin(String login, DescriptionEntity newDescriptionEntity) throws DescriptionTableIsEmptyException, DescriptionIsNotFoundException{
+        Long id = userRepo.findByLogin(login).getId();
+        updateDescription(id, newDescriptionEntity);
+    }
+
+    public void updateDescriptionById(Long id, DescriptionEntity newDescriptionEntity) throws DescriptionTableIsEmptyException, DescriptionIsNotFoundException{
+        updateDescription(id, newDescriptionEntity);
+    }
+
+
+    private void updateDescription(Long id, DescriptionEntity newDescriptionEntity) throws DescriptionTableIsEmptyException, DescriptionIsNotFoundException{
+        DescriptionEntity entity = getDescriptionFromDatabase(id);
         if(newDescriptionEntity.getAbout() != null) entity.setAbout(newDescriptionEntity.getAbout());
         if(newDescriptionEntity.getCity() != null) entity.setCity(newDescriptionEntity.getCity());
         if(newDescriptionEntity.getName() != null) entity.setName(newDescriptionEntity.getName());
-        if(newDescriptionEntity.getPatronymic() != null) entity.setPatronymic(newDescriptionEntity.getPatronymic());
         if(newDescriptionEntity.getSurname() != null) entity.setSurname(newDescriptionEntity.getSurname());
-        if(newDescriptionEntity.getPhone_number() != null) entity.setPhone_number(newDescriptionEntity.getPhone_number());
+        if(newDescriptionEntity.getNumber() != null) entity.setNumber(newDescriptionEntity.getNumber());
         descriptionRepo.save(entity);
     }
 
     private DescriptionEntity getDescriptionFromDatabase(Long user_id) throws DescriptionTableIsEmptyException, DescriptionIsNotFoundException {
-        if (!descriptionRepo.findAll().iterator().hasNext()) throw new DescriptionTableIsEmptyException("База данных Информации о пользователях пуста");
+        if (!descriptionRepo.findAll().iterator().hasNext()) throw new DescriptionTableIsEmptyException("Информации о пользователях не существует.");
         Optional<DescriptionEntity> descriptionEntityOptional = descriptionRepo.findById(user_id);
-        if(descriptionEntityOptional.isEmpty()) throw new DescriptionIsNotFoundException("Информации о данном пользователе нет (пользователя с таким id не существует)");
+        if(descriptionEntityOptional.isEmpty()) throw new DescriptionIsNotFoundException("Информации о данном пользователе нет (Пользователя с таким id не существует).");
         return descriptionEntityOptional.get();
     }
 
