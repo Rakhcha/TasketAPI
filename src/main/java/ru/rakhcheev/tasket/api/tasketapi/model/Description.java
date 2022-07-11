@@ -10,9 +10,8 @@ public class Description {
 
     private String name;
     private String surname;
-    private String patronymic;
     private String city;
-    private String phone_number;
+    private String number;
     private String about;
 
     private Description() {
@@ -25,7 +24,6 @@ public class Description {
         description.setCity(descriptionEntity.getCity());
         description.setName(descriptionEntity.getName());
         description.setSurname(descriptionEntity.getSurname());
-        description.setPhone_number(descriptionEntity.getNumber());
         return description;
     }
 
