@@ -1,4 +1,4 @@
-package ru.rakhcheev.tasket.api.tasketapi.model;
+package ru.rakhcheev.tasket.api.tasketapi.dto.description;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -6,7 +6,7 @@ import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
-public class Description {
+public class DescriptionDTO {
 
     private String name;
     private String surname;
@@ -14,12 +14,12 @@ public class Description {
     private String number;
     private String about;
 
-    private Description() {
+    private DescriptionDTO() {
     }
 
-    public static Description toModel(DescriptionEntity descriptionEntity) {
+    public static DescriptionDTO toDTO(DescriptionEntity descriptionEntity) {
         if (descriptionEntity == null) return null;
-        Description description = new Description();
+        DescriptionDTO description = new DescriptionDTO();
         description.setAbout(descriptionEntity.getAbout());
         description.setCity(descriptionEntity.getCity());
         description.setName(descriptionEntity.getName());
