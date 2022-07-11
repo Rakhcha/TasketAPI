@@ -25,12 +25,12 @@ public class UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    public UserEntity addUser(UserEntity user) throws UserAlreadyExistException {
-        if (userRepo.findByLogin(user.getLogin()) != null) throw  new UserAlreadyExistException("Пользователь уже сущесвует");
+    public void addUser(UserEntity user) throws UserAlreadyExistException {
+        if (userRepo.findByLogin(user.getLogin()) != null) throw new UserAlreadyExistException("Пользователь под логином " + user.getLogin() + " уже существует.");
         DescriptionEntity descriptionEntity = new DescriptionEntity();
         user.setDescription(descriptionEntity);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+        userRepo.save(user);
     }
 
     public List<User> getAllUsers(boolean showDescription) throws UserDatabaseIsEmptyException {
@@ -49,17 +49,25 @@ public class UserService {
         return User.toModel(user);
     }
 
-    public void editUser(Long id,UserEntity newUserParams) throws UserDatabaseIsEmptyException, UserNotFoundException {
+    public User getUserByLogin(String login, boolean showDescription) throws UserDatabaseIsEmptyException, UserNotFoundException{
+        UserEntity user = getUserFromDatabase(login);
+        if(!showDescription) user.setDescription(null);
+        return User.toModel(user);
+    }
+
+    public String editUser(Long id,UserEntity newUserParams) throws UserDatabaseIsEmptyException, UserNotFoundException {
         UserEntity user = getUserFromDatabase(id);
         if(newUserParams.getLogin() != null) user.setLogin(newUserParams.getLogin());
         if(newUserParams.getEmail() != null) user.setEmail(newUserParams.getEmail());
         if(newUserParams.getPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(newUserParams.getPassword()));
         userRepo.save(user);
+        return user.getLogin();
     }
 
-    public void deleteUser(Long id) throws UserDatabaseIsEmptyException, UserNotFoundException {
+    public String deleteUser(Long id) throws UserDatabaseIsEmptyException, UserNotFoundException {
         UserEntity user = getUserFromDatabase(id);
         userRepo.delete(user);
+        return user.getLogin();
     }
 
     private UserEntity getUserFromDatabase(Long id) throws UserDatabaseIsEmptyException, UserNotFoundException {
