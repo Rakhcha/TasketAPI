@@ -24,7 +24,7 @@ public class DescriptionEntity {
     private String city;
 
     @Column(name = "number")
-    private String  Number;
+    private String number;
 
     @Column(name = "about")
     private String about;

@@ -25,8 +25,6 @@ public class UserEntity {
     @Column(name = "email")
     private String email;
 
-
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private DescriptionEntity description;
