@@ -36,8 +36,8 @@ public class DescriptionController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<String> updateDescriptionById(Long id,
+    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
+    public ResponseEntity<String> updateDescriptionById(@PathVariable Long id,
                                                         @RequestBody DescriptionEntity newDescriptionEntity) {
         try {
             descriptionService.updateDescriptionById(id, newDescriptionEntity);
