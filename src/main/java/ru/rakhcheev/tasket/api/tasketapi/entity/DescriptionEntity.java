@@ -31,7 +31,6 @@ public class DescriptionEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JsonIgnore
     private UserEntity user;
 
 }
