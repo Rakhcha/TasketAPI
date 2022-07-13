@@ -1,9 +1,9 @@
 package ru.rakhcheev.tasket.api.tasketapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Set;
 
 
 @Entity
@@ -26,8 +26,16 @@ public class UserEntity {
     private String email;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private DescriptionEntity description;
+
+    @ManyToMany
+    @JoinTable(name = "users_groups",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "party_id"))
+    private Set<PartyEntity> groupSet;
+
+    @OneToMany(mappedBy = "creator")
+    private Set<PartyEntity> setOfCreatedGroups;
 
     public UserEntity() {
     }
