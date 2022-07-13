@@ -12,6 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.rakhcheev.tasket.api.tasketapi.dto.user.UserLoginDTO;
 import ru.rakhcheev.tasket.api.tasketapi.entity.UserEntity;
 import ru.rakhcheev.tasket.api.tasketapi.exception.UserDatabaseIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.UserNotFoundException;
@@ -39,7 +40,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             throws AuthenticationException {
 
         try {
-            UserEntity userData = new ObjectMapper().readValue(request.getInputStream(), UserEntity.class);
+            UserLoginDTO userData = new ObjectMapper().readValue(request.getInputStream(), UserLoginDTO.class);
             return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     userData.getLogin(), userData.getPassword(), new ArrayList<>()
             ));
