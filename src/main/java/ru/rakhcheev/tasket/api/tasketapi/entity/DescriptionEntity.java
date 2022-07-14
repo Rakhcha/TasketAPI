@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class DescriptionEntity {
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "name")
