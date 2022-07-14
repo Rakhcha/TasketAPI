@@ -21,7 +21,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     public ResponseEntity<String> addUser(@RequestBody UserCreationDTO user) {
         try {
             userService.addUser(user);
@@ -33,7 +33,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<?> getUsers(@RequestParam(value = "showDescription", defaultValue = "false") Boolean showDescription) {
         try {
             List<UserDTO> users = userService.getAllUsers(showDescription);
@@ -45,7 +45,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id,
                                      @RequestParam(value = "showDescription", defaultValue = "false") Boolean showDescription) {
         try {
@@ -58,7 +58,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
+    @PutMapping(value = "/{id}")
     public ResponseEntity<String> editUser(@PathVariable Long id,
                                            @RequestBody UserEntity newUserParams) {
         try {
@@ -71,7 +71,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         try {
             String login = userService.deleteUser(id);
