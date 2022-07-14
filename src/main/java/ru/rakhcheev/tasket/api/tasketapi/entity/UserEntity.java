@@ -32,10 +32,10 @@ public class UserEntity {
     @JoinTable(name = "users_groups",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "party_id"))
-    private Set<PartyEntity> groupSet;
+    private Set<CommunityEntity> groupSet;
 
     @OneToMany(mappedBy = "creator")
-    private Set<PartyEntity> setOfCreatedGroups;
+    private Set<CommunityEntity> setOfCreatedGroups;
 
     public UserEntity() {
     }

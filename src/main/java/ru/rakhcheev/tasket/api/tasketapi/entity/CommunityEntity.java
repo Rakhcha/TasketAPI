@@ -7,8 +7,8 @@ import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "party")
-public class PartyEntity {
+@Table(name = "community")
+public class CommunityEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
