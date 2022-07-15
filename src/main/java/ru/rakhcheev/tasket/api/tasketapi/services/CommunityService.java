@@ -1,21 +1,19 @@
 package ru.rakhcheev.tasket.api.tasketapi.services;
 
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityCreationDTO;
+import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityDTO;
+import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityInfoDTO;
 import ru.rakhcheev.tasket.api.tasketapi.entity.CommunityEntity;
+import ru.rakhcheev.tasket.api.tasketapi.entity.CommunityTypeEnum;
 import ru.rakhcheev.tasket.api.tasketapi.entity.UserEntity;
-import ru.rakhcheev.tasket.api.tasketapi.exception.CommunityAlreadyExistException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.UserHasNotPermissionToCreateMoreThanOneCommunityException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.*;
 import ru.rakhcheev.tasket.api.tasketapi.repository.CommunityRepo;
-import ru.rakhcheev.tasket.api.tasketapi.repository.DescriptionRepo;
 import ru.rakhcheev.tasket.api.tasketapi.repository.UserRepo;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Service
 public class CommunityService {
@@ -32,11 +30,11 @@ public class CommunityService {
         this.communityRepo = communityRepo;
     }
 
-    public void addCommunity(String creatorLogin, CommunityCreationDTO community) throws UserHasNotPermissionToCreateMoreThanOneCommunityException, CommunityAlreadyExistException {
+    public void addCommunity(String creatorLogin, CommunityCreationDTO community) throws UserHasNotPermission, CommunityAlreadyExistException {
 
         UserEntity user = userRepo.findByLogin(creatorLogin);
 
-        if(!canCreateCommunity(user)) throw new UserHasNotPermissionToCreateMoreThanOneCommunityException();
+        if(!canCreateCommunity(user)) throw new UserHasNotPermission("Нет прав для создания более одной группы");
         if(communityRepo.findByCommunityName(community.getCommunityName()) != null)
             throw new CommunityAlreadyExistException(community.getCommunityName());
 
@@ -50,6 +48,60 @@ public class CommunityService {
         communityRepo.save(communityEntity);
     }
 
+
+    public List<CommunityInfoDTO> getCommunities(String type, String userLogin) throws CommunityEnumTypeIsNotFoundException, TableIsEmptyException {
+        CommunityTypeEnum communityTypeEnum;
+        Iterable<CommunityEntity> communitiesIterableList;
+        List<CommunityInfoDTO> communitiesList;
+
+        try {
+            communityTypeEnum = Enum.valueOf(CommunityTypeEnum.class, type.toUpperCase());
+        } catch (IllegalArgumentException e){
+            throw new CommunityEnumTypeIsNotFoundException("Аргумент \"type\": "  + type + " не поддерживается.");
+        }
+
+        communitiesList = new ArrayList<>();
+        communitiesIterableList = communityRepo.findAll();
+
+        if(!communitiesIterableList.iterator().hasNext()) throw new TableIsEmptyException("Ни одной группы не создано");
+
+        switch (communityTypeEnum){
+            case JOINED:
+                UserEntity user = userRepo.findByLogin(userLogin);
+                for (CommunityEntity community : communitiesIterableList)
+                    if(community.getUsersSet().contains(user)) communitiesList.add(CommunityInfoDTO.toDTO(community));
+                return communitiesList;
+            case PUBLIC:
+                for (CommunityEntity community : communitiesIterableList)
+                    if(!community.getIsPrivate()) communitiesList.add(CommunityInfoDTO.toDTO(community));
+                return communitiesList;
+            case CREATED:
+                for (CommunityEntity community : communitiesIterableList)
+                    if(community.getCreator().getLogin().equals(userLogin)) communitiesList.add(CommunityInfoDTO.toDTO(community));
+                return communitiesList;
+            default:
+                for (CommunityEntity community : communitiesIterableList)
+                    communitiesList.add(CommunityInfoDTO.toDTO(community));
+                return communitiesList;
+        }
+    }
+
+    public CommunityDTO getCommunityById(Long id, String userLogin) throws CommunityNotFoundException, UserHasNotPermission {
+        UserEntity user;
+        CommunityEntity community;
+        Optional<CommunityEntity> communityEntityOptional = communityRepo.findById(id);
+        if(communityEntityOptional.isEmpty()) throw new CommunityNotFoundException();
+
+        community = communityEntityOptional.get();
+        user = userRepo.findByLogin(userLogin);
+
+        // импликация
+        if(!community.getIsPrivate() || community.getUsersSet().contains(user))
+            throw new UserHasNotPermission("Нет прав для доступа к группе");
+
+        return CommunityDTO.toDTO(community);
+    }
+
     private boolean canCreateCommunity(UserEntity user){
 
         int countOfCreatedGroups = user.getSetOfCreatedGroups().size();
@@ -58,6 +110,6 @@ public class CommunityService {
         if(countOfCreatedGroups == 0) return true;
         // TODO проверка на права создания более одного и комьюнити
 
-        return canCreateMoreThanOneCommunity && countOfCreatedGroups < 10;
+        return canCreateMoreThanOneCommunity && countOfCreatedGroups < COUNT_OF_MAX_COMMUNITIES;
     }
 }
