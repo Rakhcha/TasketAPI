@@ -90,13 +90,13 @@ public class CommunityService {
         UserEntity user;
         CommunityEntity community;
         Optional<CommunityEntity> communityEntityOptional = communityRepo.findById(id);
-        if(communityEntityOptional.isEmpty()) throw new CommunityNotFoundException();
+        if(communityEntityOptional.isEmpty()) throw new CommunityNotFoundException("Группа с id: " + id + " не найдена.");
 
         community = communityEntityOptional.get();
         user = userRepo.findByLogin(userLogin);
 
-        // импликация
-        if(!community.getIsPrivate() || community.getUsersSet().contains(user))
+        // обратная импликация
+        if(community.getIsPrivate() && !community.getUsersSet().contains(user))
             throw new UserHasNotPermission("Нет прав для доступа к группе");
 
         return CommunityDTO.toDTO(community);
