@@ -26,7 +26,7 @@ public class CommunityController {
 
     @PostMapping
     public ResponseEntity<String> addCommunityRequest(@RequestBody CommunityCreationDTO community,
-                                                      Authentication authentication){
+                                                      Authentication authentication) {
         String userLogin = authentication.getName();
         try {
             communityService.addCommunity(userLogin, community);
@@ -35,44 +35,53 @@ public class CommunityController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (CommunityAlreadyExistException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping
     public ResponseEntity<?> getCommunities(@RequestParam(value = "type", defaultValue = "public") String type,
-                                                     Authentication authentication) {
+                                            Authentication authentication) {
         try {
             List<CommunityInfoDTO> communityList = communityService.getCommunities(type, authentication.getName());
-            return new ResponseEntity<>(communityList, HttpStatus.OK) ;
-        } catch (CommunityEnumTypeIsNotFoundException e){
+            return new ResponseEntity<>(communityList, HttpStatus.OK);
+        } catch (CommunityEnumTypeIsNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (TableIsEmptyException e){
+        } catch (TableIsEmptyException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
         }
-
-
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getCommunityById(@PathVariable(value = "id") Long id,
-                                            Authentication authentication) {
+                                              Authentication authentication) {
         try {
             CommunityDTO communityList = communityService.getCommunityById(id, authentication.getName());
-            return new ResponseEntity<>(communityList, HttpStatus.OK) ;
-        } catch (CommunityNotFoundException | UserHasNotPermission e){
+            return new ResponseEntity<>(communityList, HttpStatus.OK);
+        } catch (NotFoundException | UserHasNotPermission e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    // Get community by Name
-
     // Delete community by ID
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<String> deleteCommunityById(@PathVariable(value = "id") Long id, Authentication authentication) {
+        try {
+            communityService.deleteCommunityById(id, authentication.getName());
+            return new ResponseEntity<>("Группа успешно удалена", HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserHasNotPermission e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
     // Update community by ID
 
