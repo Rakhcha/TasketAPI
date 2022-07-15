@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import ru.rakhcheev.tasket.api.tasketapi.dto.description.DescriptionDTO;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
 import ru.rakhcheev.tasket.api.tasketapi.exception.DescriptionIsNotFoundException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.DescriptionTableIsEmptyException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.TableIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.services.DescriptionService;
 
 @Controller
@@ -29,7 +29,7 @@ public class DescriptionController {
         try {
             DescriptionDTO descriptionDTO = DescriptionDTO.toDTO(descriptionService.getByUserId(id));
             return new ResponseEntity<>(descriptionDTO, HttpStatus.OK);
-        } catch (DescriptionIsNotFoundException | DescriptionTableIsEmptyException e) {
+        } catch (DescriptionIsNotFoundException | TableIsEmptyException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
@@ -42,7 +42,7 @@ public class DescriptionController {
         try {
             descriptionService.updateDescriptionById(id, newDescriptionEntity);
             return new ResponseEntity<>("Ваши данные обновлены", HttpStatus.OK);
-        } catch (DescriptionIsNotFoundException | DescriptionTableIsEmptyException e) {
+        } catch (DescriptionIsNotFoundException | TableIsEmptyException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
@@ -55,7 +55,7 @@ public class DescriptionController {
         try {
             descriptionService.updateDescriptionByLogin(authentication.getName(), newDescriptionEntity);
             return new ResponseEntity<>("Ваши данные обновлены", HttpStatus.OK);
-        } catch (DescriptionIsNotFoundException | DescriptionTableIsEmptyException e) {
+        } catch (DescriptionIsNotFoundException | TableIsEmptyException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
