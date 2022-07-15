@@ -9,7 +9,7 @@ public class CommunityCreationDTO {
     private String communityName;
     private Boolean isPrivate;
 
-    public static CommunityEntity toEntity(CommunityCreationDTO communityCreationDTO){
+    public static CommunityEntity toEntity(CommunityCreationDTO communityCreationDTO) {
         CommunityEntity entity = new CommunityEntity();
         entity.setCommunityName(communityCreationDTO.getCommunityName());
         entity.setIsPrivate(communityCreationDTO.getIsPrivate());

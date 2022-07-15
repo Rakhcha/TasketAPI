@@ -16,7 +16,7 @@ public class CommunityDTO {
     private UserDTO creator;
     private Set<UserDTO> users;
 
-    public static CommunityDTO toDTO(CommunityEntity communityEntity){
+    public static CommunityDTO toDTO(CommunityEntity communityEntity) {
         CommunityDTO communityDTO = new CommunityDTO();
         communityDTO.setCommunityName(communityEntity.getCommunityName());
         communityDTO.setIsPrivate(communityEntity.getIsPrivate());
@@ -26,7 +26,7 @@ public class CommunityDTO {
         communityDTO.setCreator(UserDTO.toDTO(user));
 
         Set<UserDTO> users = new HashSet<>();
-        for(UserEntity userEntity : communityEntity.getUsersSet()){
+        for (UserEntity userEntity : communityEntity.getUsersSet()) {
             userEntity.setDescription(null);
             users.add(UserDTO.toDTO(userEntity));
         }
