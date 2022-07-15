@@ -27,6 +27,9 @@ public class CommunityEntity {
     @JoinColumn(name = "creator_id", nullable = false)
     private UserEntity creator;
 
+    @Column(name = "status_activity", nullable = false)
+    private EntityStatusEnum statusActivity;
+
     // TODO Разобраться с каскадом
     @ManyToMany
     @JoinTable(name = "users_groups",
