@@ -2,11 +2,9 @@ package ru.rakhcheev.tasket.api.tasketapi.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityCreationDTO;
-import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityDTO;
-import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityInfoDTO;
-import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityUrlDTO;
+import ru.rakhcheev.tasket.api.tasketapi.dto.community.*;
 import ru.rakhcheev.tasket.api.tasketapi.entity.*;
 import ru.rakhcheev.tasket.api.tasketapi.exception.*;
 import ru.rakhcheev.tasket.api.tasketapi.repository.CommunityRepo;
@@ -115,25 +113,60 @@ public class CommunityService {
         communityRepo.save(community);
     }
 
-    public CommunityUrlDTO addInviteUrl(Long communityId, LocalDateTime dateTime, String userLogin)
+    public CommunityUrlDTO addInviteUrl(CommunityCreateUrlDTO communityCreateUrlDTO, String userLogin)
             throws CommunityHasTooManyUrlsException, NotFoundException, UserHasNotPermission {
 
         CommunityUrlEntity url;
         CommunityEntity community;
+        String dateTimeString;
+        Long communityId = communityCreateUrlDTO.getCommunityId();
         Optional<CommunityEntity> communityEntityOptional = communityRepo.findById(communityId);
 
-        if (communityEntityOptional.isEmpty())
+        if (communityEntityOptional.isEmpty() || communityEntityOptional.get().getStatusActivity().equals(EntityStatusEnum.DELETED))
             throw new NotFoundException("Группа с id: " + communityId + " не найдена.");
-        community = getCommunityEntity(communityId, userLogin);
+        community = communityEntityOptional.get();
 
         if (communityUrlRepo.findAllByCommunity(community).size() >= 5) throw new CommunityHasTooManyUrlsException();
 
         url = new CommunityUrlEntity(community);
         while (communityUrlRepo.findByUrlParam(url.getUrlParam()) != null) url.regenerateUrlParam();
 
-        url.setDestroyDate(dateTime);
+        dateTimeString = communityCreateUrlDTO.getDestroyDate();
+        url.setDestroyDate(
+                dateTimeString == null || dateTimeString.isBlank()
+                        ? null
+                        : LocalDateTime.parse(dateTimeString)
+        );
+        if(communityCreateUrlDTO.getOnceUsed() != null) url.setOnceUsed(communityCreateUrlDTO.getOnceUsed());
         communityUrlRepo.save(url);
         return CommunityUrlDTO.toDTO(url);
+    }
+
+    public void joinWithInviteKey(String inviteKey, Authentication authentication)
+            throws NotFoundException, UserAlreadyExistException {
+        UserEntity user;
+        CommunityUrlEntity urlEntity = communityUrlRepo.findByUrlParam(inviteKey);
+        CommunityEntity community;
+
+        if (urlEntity.getStatus().equals(EntityStatusEnum.DELETED))
+            throw new NotFoundException("Данного ключа не существует, либо он был использован");
+        if (urlEntity.getDestroyDate() != null && urlEntity.getDestroyDate().isBefore(LocalDateTime.now())) {
+            urlEntity.setStatus(EntityStatusEnum.DELETED);
+            throw new NotFoundException("Данного ключа не существует, либо он был использован");
+        }
+
+        user = userRepo.findByLogin(authentication.getName());
+        community = urlEntity.getCommunity();
+
+        if (community.getUsersSet().contains(user))
+            throw new UserAlreadyExistException("Данный пользователь уже состоит в группе");
+
+        community.getUsersSet().add(user);
+        communityRepo.save(community);
+        if (urlEntity.getOnceUsed()) {
+            urlEntity.setStatus(EntityStatusEnum.DELETED);
+            communityUrlRepo.save(urlEntity);
+        }
     }
 
     private CommunityEntity getCommunityEntity(Long id, String userLogin) throws NotFoundException, UserHasNotPermission {
@@ -152,6 +185,7 @@ public class CommunityService {
 
         return community;
     }
+
     private boolean canCreateCommunity(UserEntity user) {
 
         int countOfCreatedGroups = user.getSetOfCreatedGroups().size();
