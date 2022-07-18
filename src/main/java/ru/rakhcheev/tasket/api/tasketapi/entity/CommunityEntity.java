@@ -19,7 +19,7 @@ public class CommunityEntity {
     @Column(name = "name", nullable = false)
     private String communityName;
 
-    @Column(name = "is_private", nullable = false)
+    @Column(name = "is_private")
     private Boolean isPrivate;
 
     // TODO Разобраться с каскадом
@@ -27,7 +27,7 @@ public class CommunityEntity {
     @JoinColumn(name = "creator_id", nullable = false)
     private UserEntity creator;
 
-    @Column(name = "status_activity", nullable = false)
+    @Column(name = "status_activity")
     private EntityStatusEnum statusActivity;
 
     // TODO Разобраться с каскадом
