@@ -9,7 +9,6 @@ import ru.rakhcheev.tasket.api.tasketapi.dto.community.*;
 import ru.rakhcheev.tasket.api.tasketapi.exception.*;
 import ru.rakhcheev.tasket.api.tasketapi.services.CommunityService;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class CommunityController {
         } catch (CommunityAlreadyExistException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -51,7 +50,7 @@ public class CommunityController {
         } catch (TableIsEmptyException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -64,11 +63,13 @@ public class CommunityController {
         } catch (NotFoundException | UserHasNotPermission e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    // Delete community by ID
+
+    // TODO When delete community all users and invite urls was deleted
+
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteCommunityById(@PathVariable(value = "id") Long id, Authentication authentication) {
         try {
@@ -79,7 +80,7 @@ public class CommunityController {
         } catch (UserHasNotPermission e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -87,13 +88,10 @@ public class CommunityController {
     public ResponseEntity<?> addUrlForJoinCommunityById(@RequestBody CommunityCreateUrlDTO communityCreateUrlDTO,
                                                         Authentication authentication) {
         try {
-            LocalDateTime dateTime = LocalDateTime.parse(communityCreateUrlDTO.getDestroyDate());
-            CommunityUrlDTO communityUrlDTO =
-                    communityService.addInviteUrl(
-                            communityCreateUrlDTO.getCommunityId(),
-                            dateTime,
-                            authentication.getName()
-                    );
+            CommunityUrlDTO communityUrlDTO = communityService.addInviteUrl(
+                    communityCreateUrlDTO,
+                    authentication.getName()
+            );
             return new ResponseEntity<>(communityUrlDTO, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -104,7 +102,7 @@ public class CommunityController {
         } catch (DateTimeParseException e) {
             return new ResponseEntity<>("Неверный формат времени (пример: 2018-05-05T11:50:55.1234)", HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -112,7 +110,19 @@ public class CommunityController {
 
     // POST Join into Community by Authentication if Community is not Private
 
-    // POST Join into Community by uuid url in Private community
+    @PostMapping(value = "/join/{inviteKey}")
+    public ResponseEntity<String> joinCommunityWithInviteKey(@PathVariable(value = "inviteKey") String inviteKey, Authentication authentication) {
+        try {
+            communityService.joinWithInviteKey(inviteKey, authentication);
+            return new ResponseEntity<>("Пользователь добавлен в группу", HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserAlreadyExistException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
 
 }
