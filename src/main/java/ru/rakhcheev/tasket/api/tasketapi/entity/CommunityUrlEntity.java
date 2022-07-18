@@ -22,20 +22,31 @@ public class CommunityUrlEntity {
     @Column(name = "date")
     private LocalDateTime destroyDate;
 
+    @Column(name = "once_used", nullable = false)
+    private Boolean onceUsed;
+
+    @Column(name = "status", nullable = false)
+    private EntityStatusEnum status;
+
     @ManyToOne()
     @JoinColumn(name = "community_id", nullable = false)
     private CommunityEntity community;
 
     public CommunityUrlEntity() {
-        this.urlParam = UUID.randomUUID().toString().replace("-","");
+        this.urlParam = UUID.randomUUID().toString().replace("-", "");
+        this.onceUsed = false;
+        this.status = EntityStatusEnum.ACTIVE;
     }
 
     public CommunityUrlEntity(CommunityEntity community) {
-        this.urlParam = UUID.randomUUID().toString().replace("-","");
+        this.urlParam = UUID.randomUUID().toString().replace("-", "");
+        this.onceUsed = false;
+        this.status = EntityStatusEnum.ACTIVE;
         this.community = community;
     }
 
-    public void regenerateUrlParam(){
-        this.urlParam = UUID.randomUUID().toString().replace("-","");
+    public void regenerateUrlParam() {
+        this.urlParam = UUID.randomUUID().toString().replace("-", "");
     }
+
 }
