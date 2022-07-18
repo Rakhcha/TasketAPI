@@ -5,12 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityCreationDTO;
-import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityDTO;
-import ru.rakhcheev.tasket.api.tasketapi.dto.community.CommunityInfoDTO;
+import ru.rakhcheev.tasket.api.tasketapi.dto.community.*;
 import ru.rakhcheev.tasket.api.tasketapi.exception.*;
 import ru.rakhcheev.tasket.api.tasketapi.services.CommunityService;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -83,6 +83,36 @@ public class CommunityController {
         }
     }
 
+    @PostMapping(value = "/url")
+    public ResponseEntity<?> addUrlForJoinCommunityById(@RequestBody CommunityCreateUrlDTO communityCreateUrlDTO,
+                                                        Authentication authentication) {
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(communityCreateUrlDTO.getDestroyDate());
+            CommunityUrlDTO communityUrlDTO =
+                    communityService.addInviteUrl(
+                            communityCreateUrlDTO.getCommunityId(),
+                            dateTime,
+                            authentication.getName()
+                    );
+            return new ResponseEntity<>(communityUrlDTO, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserHasNotPermission e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (CommunityHasTooManyUrlsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (DateTimeParseException e) {
+            return new ResponseEntity<>("Неверный формат времени (пример: 2018-05-05T11:50:55.1234)", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     // Update community by ID
+
+    // POST Join into Community by Authentication if Community is not Private
+
+    // POST Join into Community by uuid url in Private community
+
 
 }
