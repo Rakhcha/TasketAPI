@@ -169,6 +169,21 @@ public class CommunityService {
         }
     }
 
+    public void joinPublicCommunity(Long id, Authentication authentication)
+            throws NotFoundException, UserHasNotPermission, UserAlreadyExistException {
+        UserEntity user;
+        CommunityEntity community;
+
+        community = getCommunityEntity(id, authentication.getName());
+        user = userRepo.findByLogin(authentication.getName());
+        if(community.getUsersSet().contains(user)) throw new UserAlreadyExistException("Данный пользователь уже состоит в группе");
+        if(community.getIsPrivate()) throw new UserHasNotPermission("Нет прав для доступа, так как данная группа приватная");
+        // TODO Проверка на удаленную группу.
+
+        community.getUsersSet().add(user);
+        communityRepo.save(community);
+    }
+
     private CommunityEntity getCommunityEntity(Long id, String userLogin) throws NotFoundException, UserHasNotPermission {
         UserEntity user;
         CommunityEntity community;
