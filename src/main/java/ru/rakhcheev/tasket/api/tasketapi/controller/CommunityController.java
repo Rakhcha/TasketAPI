@@ -108,7 +108,21 @@ public class CommunityController {
 
     // Update community by ID
 
-    // POST Join into Community by Authentication if Community is not Private
+    @PostMapping(value = "/join/{id}")
+    public ResponseEntity<?> joinPublicCommunityByAuthentication(@PathVariable(value = "id") Long id, Authentication authentication){
+        try {
+            communityService.joinPublicCommunity(id, authentication);
+            return new ResponseEntity<>("Пользователь добавлен в группу", HttpStatus.OK);
+        } catch (UserAlreadyExistException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserHasNotPermission e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (Exception e){
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @PostMapping(value = "/join/{inviteKey}")
     public ResponseEntity<String> joinCommunityWithInviteKey(@PathVariable(value = "inviteKey") String inviteKey, Authentication authentication) {
