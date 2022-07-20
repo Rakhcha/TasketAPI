@@ -9,6 +9,7 @@ public class UserCreationDTO {
     private String login;
     private String password;
     private String email;
+    private String role;
 
     private UserCreationDTO() {
     }
