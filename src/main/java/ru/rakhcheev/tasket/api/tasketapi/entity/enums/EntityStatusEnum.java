@@ -1,4 +1,4 @@
-package ru.rakhcheev.tasket.api.tasketapi.entity;
+package ru.rakhcheev.tasket.api.tasketapi.entity.enums;
 
 public enum EntityStatusEnum {
 
