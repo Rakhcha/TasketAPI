@@ -9,6 +9,7 @@ public class CommunityInfoDTO {
     private Long communityID;
     private String communityName;
     private String creatorLogin;
+    private Boolean isPrivate;
     private int countOfUsers;
 
     public static CommunityInfoDTO toDTO(CommunityEntity entity) {
@@ -16,6 +17,7 @@ public class CommunityInfoDTO {
         communityDTO.setCommunityID(entity.getCommunityId());
         communityDTO.setCommunityName(entity.getCommunityName());
         communityDTO.setCreatorLogin(entity.getCreator().getLogin());
+        communityDTO.setIsPrivate(entity.getIsPrivate());
         communityDTO.setCountOfUsers(entity.getUsersSet().size());
         return communityDTO;
     }
