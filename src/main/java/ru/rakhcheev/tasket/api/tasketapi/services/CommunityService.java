@@ -109,11 +109,8 @@ public class CommunityService {
 
     public void deleteCommunityById(Long id, Authentication authentication)
             throws NotFoundException, UserHasNotPermission {
-        UserEntity user;
-        CommunityEntity community;
-
-        community = getCommunityEntity(id, authentication.getName());
-        user = userRepo.findByLogin(authentication.getName());
+        UserEntity user = userRepo.findByLogin(authentication.getName());
+        CommunityEntity community = getCommunityEntity(id, authentication.getName());
 
         // TODO if(проверка на роль администратора) communityRepo.delete(community);
         if (!community.getCreator().equals(user))
@@ -195,6 +192,21 @@ public class CommunityService {
         communityRepo.save(community);
     }
 
+    public void updateCommunity(Long id, CommunityCreationDTO communityNewData, Authentication authentication)
+            throws NotFoundException, UserHasNotPermission {
+
+        CommunityEntity community = getCommunityEntity(id, authentication.getName());
+        UserEntity user = userRepo.findByLogin(authentication.getName());
+
+        if (communityNewData.getCommunityName() != null) community.setCommunityName(communityNewData.getCommunityName());
+        if (communityNewData.getIsPrivate() != null) community.setIsPrivate(communityNewData.getIsPrivate());
+
+        // TODO if(проверка на роль администратора) communityRepo.save(community);
+        if(!community.getCreator().equals(user))
+            throw new UserHasNotPermission("Только создатель группы может обновлять данные группы");
+
+        communityRepo.save(community);
+    }
 
     private CommunityEntity getCommunityEntity(Long id, String userLogin)
             throws NotFoundException, UserHasNotPermission {
