@@ -26,9 +26,8 @@ public class CommunityController {
     @PostMapping
     public ResponseEntity<String> addCommunityRequest(@RequestBody CommunityCreationDTO community,
                                                       Authentication authentication) {
-        String userLogin = authentication.getName();
         try {
-            communityService.addCommunity(userLogin, community);
+            communityService.addCommunity(community, authentication);
             return new ResponseEntity<>("Группа" + community.getCommunityName() + " добавлена.", HttpStatus.OK);
         } catch (UserHasNotPermission e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
@@ -43,7 +42,7 @@ public class CommunityController {
     public ResponseEntity<?> getCommunities(@RequestParam(value = "type", defaultValue = "public") String type,
                                             Authentication authentication) {
         try {
-            List<CommunityInfoDTO> communityList = communityService.getCommunities(type, authentication.getName());
+            List<CommunityInfoDTO> communityList = communityService.getCommunities(type, authentication);
             return new ResponseEntity<>(communityList, HttpStatus.OK);
         } catch (CommunityEnumTypeIsNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -58,7 +57,7 @@ public class CommunityController {
     public ResponseEntity<?> getCommunityById(@PathVariable(value = "id") Long id,
                                               Authentication authentication) {
         try {
-            CommunityDTO communityList = communityService.getCommunityById(id, authentication.getName());
+            CommunityDTO communityList = communityService.getCommunityById(id, authentication);
             return new ResponseEntity<>(communityList, HttpStatus.OK);
         } catch (NotFoundException | UserHasNotPermission e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -67,13 +66,11 @@ public class CommunityController {
         }
     }
 
-
-    // TODO When delete community all users and invite urls was deleted
-
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<String> deleteCommunityById(@PathVariable(value = "id") Long id, Authentication authentication) {
+    public ResponseEntity<String> deleteCommunityById(@PathVariable(value = "id") Long id,
+                                                      Authentication authentication) {
         try {
-            communityService.deleteCommunityById(id, authentication.getName());
+            communityService.deleteCommunityById(id, authentication);
             return new ResponseEntity<>("Группа успешно удалена", HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -90,7 +87,7 @@ public class CommunityController {
         try {
             CommunityUrlDTO communityUrlDTO = communityService.addInviteUrl(
                     communityCreateUrlDTO,
-                    authentication.getName()
+                    authentication
             );
             return new ResponseEntity<>(communityUrlDTO, HttpStatus.OK);
         } catch (NotFoundException e) {
@@ -106,10 +103,25 @@ public class CommunityController {
         }
     }
 
-    // Update community by ID
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<String> updateCommunityDataByCommunityId(@PathVariable(value = "id") Long id,
+                                                                   @RequestBody CommunityCreationDTO communityCreationDTO,
+                                                                   Authentication authentication) {
+        try {
+            communityService.updateCommunity(id, communityCreationDTO, authentication);
+            return new ResponseEntity<>("Данные группы изменены", HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserHasNotPermission e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @PostMapping(value = "/join/{id}")
-    public ResponseEntity<?> joinPublicCommunityByAuthentication(@PathVariable(value = "id") Long id, Authentication authentication){
+    public ResponseEntity<String> joinPublicCommunityByAuthentication(@PathVariable(value = "id") Long id,
+                                                                      Authentication authentication) {
         try {
             communityService.joinPublicCommunity(id, authentication);
             return new ResponseEntity<>("Пользователь добавлен в группу", HttpStatus.OK);
@@ -119,13 +131,14 @@ public class CommunityController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (UserHasNotPermission e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping(value = "/join/{inviteKey}")
-    public ResponseEntity<String> joinCommunityWithInviteKey(@PathVariable(value = "inviteKey") String inviteKey, Authentication authentication) {
+    public ResponseEntity<String> joinCommunityWithInviteKey(@PathVariable(value = "inviteKey") String inviteKey,
+                                                             Authentication authentication) {
         try {
             communityService.joinWithInviteKey(inviteKey, authentication);
             return new ResponseEntity<>("Пользователь добавлен в группу", HttpStatus.OK);
@@ -137,6 +150,4 @@ public class CommunityController {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
-
 }
