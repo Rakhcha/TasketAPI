@@ -31,10 +31,10 @@ public class CommunityService {
         this.communityUrlRepo = communityUrlRepo;
     }
 
-    public void addCommunity(String creatorLogin, CommunityCreationDTO community)
+    public void addCommunity(CommunityCreationDTO community, Authentication authentication)
             throws UserHasNotPermission, CommunityAlreadyExistException {
 
-        UserEntity user = userRepo.findByLogin(creatorLogin);
+        UserEntity user = userRepo.findByLogin(authentication.getName());
 
         if (!canCreateCommunity(user)) throw new UserHasNotPermission("Исчерпан лимит созданных груп");
         if (communityRepo.findByCommunityName(community.getCommunityName()) != null)
@@ -51,7 +51,8 @@ public class CommunityService {
     }
 
 
-    public List<CommunityInfoDTO> getCommunities(String type, String userLogin) throws CommunityEnumTypeIsNotFoundException, TableIsEmptyException {
+    public List<CommunityInfoDTO> getCommunities(String type, Authentication authentication)
+            throws CommunityEnumTypeIsNotFoundException, TableIsEmptyException {
         CommunitySearchTypeEnum communityTypeEnum;
         Iterable<CommunityEntity> communitiesIterableList;
         List<CommunityInfoDTO> communitiesList;
@@ -71,10 +72,10 @@ public class CommunityService {
 
         switch (communityTypeEnum) {
             case JOINED:
-                user = userRepo.findByLogin(userLogin);
+                user = userRepo.findByLogin(authentication.getName());
 
                 for (CommunityEntity community : user.getGroupSet())
-                    if(community.getStatusActivity().ordinal() != 3)
+                    if (community.getStatusActivity().ordinal() != 3)
                         communitiesList.add(CommunityInfoDTO.toDTO(community));
 
                 return communitiesList;
@@ -85,37 +86,34 @@ public class CommunityService {
 
                 return communitiesList;
             case CREATED:
-                user = userRepo.findByLogin(userLogin);
+                user = userRepo.findByLogin(authentication.getName());
                 for (CommunityEntity community : user.getSetOfCreatedGroups())
-                    if(community.getStatusActivity().ordinal() != 3)
+                    if (community.getStatusActivity().ordinal() != 3)
                         communitiesList.add(CommunityInfoDTO.toDTO(community));
 
                 return communitiesList;
             default:
                 for (CommunityEntity community : communitiesIterableList)
-                    if(community.getStatusActivity().ordinal() != 3)
+                    if (community.getStatusActivity().ordinal() != 3)
                         communitiesList.add(CommunityInfoDTO.toDTO(community));
 
                 return communitiesList;
         }
     }
 
-    public CommunityDTO getCommunityById(Long id, String userLogin) throws NotFoundException, UserHasNotPermission {
-        CommunityEntity community = getCommunityEntity(id, userLogin);
+    public CommunityDTO getCommunityById(Long id, Authentication authentication)
+            throws NotFoundException, UserHasNotPermission {
+        CommunityEntity community = getCommunityEntity(id, authentication.getName());
         return CommunityDTO.toDTO(community);
     }
 
-    public void deleteCommunityById(Long id, String userLogin) throws NotFoundException, UserHasNotPermission {
-        Optional<CommunityEntity> communityEntityOptional = communityRepo.findById(id);
+    public void deleteCommunityById(Long id, Authentication authentication)
+            throws NotFoundException, UserHasNotPermission {
         UserEntity user;
         CommunityEntity community;
 
-        if (communityEntityOptional.isEmpty()) throw new NotFoundException("Группы с id: " + id + " не существует.");
-        community = communityEntityOptional.get();
-
-        if (community.getStatusActivity().ordinal() == 3)
-            throw new NotFoundException("Группы с id: " + id + " не существует.");
-        user = userRepo.findByLogin(userLogin);
+        community = getCommunityEntity(id, authentication.getName());
+        user = userRepo.findByLogin(authentication.getName());
 
         // TODO if(проверка на роль администратора) communityRepo.delete(community);
         if (!community.getCreator().equals(user))
@@ -124,18 +122,16 @@ public class CommunityService {
         communityRepo.save(community);
     }
 
-    public CommunityUrlDTO addInviteUrl(CommunityCreateUrlDTO communityCreateUrlDTO, String userLogin)
+    public CommunityUrlDTO addInviteUrl(CommunityCreateUrlDTO communityCreateUrlDTO, Authentication authentication)
             throws CommunityHasTooManyUrlsException, NotFoundException, UserHasNotPermission {
 
         CommunityUrlEntity url;
-        CommunityEntity community;
+        UserEntity user = userRepo.findByLogin(authentication.getName());
+        CommunityEntity community = getCommunityEntity(communityCreateUrlDTO.getCommunityId(), user.getLogin());
         String dateTimeString;
-        Long communityId = communityCreateUrlDTO.getCommunityId();
-        Optional<CommunityEntity> communityEntityOptional = communityRepo.findById(communityId);
 
-        if (communityEntityOptional.isEmpty() || communityEntityOptional.get().getStatusActivity().ordinal() == 3)
-            throw new NotFoundException("Группа с id: " + communityId + " не найдена.");
-        community = communityEntityOptional.get();
+        if(!community.getCreator().equals(user))
+            throw new UserHasNotPermission("Только создатель группы может создавать пригласительные ссылки");
 
         if (communityUrlRepo.findAllByCommunity(community).size() >= 5) throw new CommunityHasTooManyUrlsException();
 
@@ -148,7 +144,7 @@ public class CommunityService {
                         ? null
                         : LocalDateTime.parse(dateTimeString)
         );
-        if(communityCreateUrlDTO.getOnceUsed() != null) url.setOnceUsed(communityCreateUrlDTO.getOnceUsed());
+        if (communityCreateUrlDTO.getOnceUsed() != null) url.setOnceUsed(communityCreateUrlDTO.getOnceUsed());
         communityUrlRepo.save(url);
         return CommunityUrlDTO.toDTO(url);
     }
@@ -169,7 +165,7 @@ public class CommunityService {
         user = userRepo.findByLogin(authentication.getName());
         community = urlEntity.getCommunity();
 
-        if(community.getStatusActivity().ordinal() == 3)
+        if (community.getStatusActivity().ordinal() == 3)
             throw new NotFoundException("Группа с id: " + community.getCommunityId() + " не найдена.");
 
         if (community.getUsersSet().contains(user))
@@ -190,16 +186,18 @@ public class CommunityService {
 
         community = getCommunityEntity(id, authentication.getName());
         user = userRepo.findByLogin(authentication.getName());
-        if(community.getStatusActivity().ordinal() == 3)
-            throw new NotFoundException("Группа с id: " + community.getCommunityId() + " не найдена.");
-        if(community.getUsersSet().contains(user)) throw new UserAlreadyExistException("Данный пользователь уже состоит в группе");
-        if(community.getIsPrivate()) throw new UserHasNotPermission("Нет прав для доступа, так как данная группа приватная");
+        if (community.getUsersSet().contains(user))
+            throw new UserAlreadyExistException("Данный пользователь уже состоит в группе");
+        if (community.getIsPrivate())
+            throw new UserHasNotPermission("Нет прав для доступа, так как данная группа приватная");
 
         community.getUsersSet().add(user);
         communityRepo.save(community);
     }
 
-    private CommunityEntity getCommunityEntity(Long id, String userLogin) throws NotFoundException, UserHasNotPermission {
+
+    private CommunityEntity getCommunityEntity(Long id, String userLogin)
+            throws NotFoundException, UserHasNotPermission {
         UserEntity user;
         CommunityEntity community;
         Optional<CommunityEntity> communityEntityOptional = communityRepo.findById(id);
@@ -207,7 +205,7 @@ public class CommunityService {
             throw new NotFoundException("Группа с id: " + id + " не найдена или удалена.");
 
         community = communityEntityOptional.get();
-        if(community.getStatusActivity().ordinal() == 3)
+        if (community.getStatusActivity().ordinal() == 3)
             throw new NotFoundException("Группы с id: " + id + " не найдена или удалена.");
         user = userRepo.findByLogin(userLogin);
 
