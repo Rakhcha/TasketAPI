@@ -1,7 +1,7 @@
 package ru.rakhcheev.tasket.api.tasketapi.entity;
 
 import lombok.Data;
-import org.hibernate.annotations.Fetch;
+import ru.rakhcheev.tasket.api.tasketapi.entity.enums.UserAuthorityEnum;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -26,6 +26,9 @@ public class UserEntity {
 
     @Column(name = "email")
     private String email;
+
+    @Column(name = "role")
+    private UserAuthorityEnum authority;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private DescriptionEntity description;

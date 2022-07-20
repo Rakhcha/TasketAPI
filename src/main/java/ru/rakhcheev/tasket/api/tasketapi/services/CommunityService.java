@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.rakhcheev.tasket.api.tasketapi.dto.community.*;
 import ru.rakhcheev.tasket.api.tasketapi.entity.*;
+import ru.rakhcheev.tasket.api.tasketapi.entity.enums.CommunitySearchTypeEnum;
+import ru.rakhcheev.tasket.api.tasketapi.entity.enums.EntityStatusEnum;
 import ru.rakhcheev.tasket.api.tasketapi.exception.*;
 import ru.rakhcheev.tasket.api.tasketapi.repository.CommunityRepo;
 import ru.rakhcheev.tasket.api.tasketapi.repository.CommunityUrlRepo;

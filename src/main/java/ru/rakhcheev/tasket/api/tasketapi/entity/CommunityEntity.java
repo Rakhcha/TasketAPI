@@ -1,6 +1,7 @@
 package ru.rakhcheev.tasket.api.tasketapi.entity;
 
 import lombok.Data;
+import ru.rakhcheev.tasket.api.tasketapi.entity.enums.EntityStatusEnum;
 
 import javax.persistence.*;
 import java.util.Objects;
