@@ -240,11 +240,10 @@ public class CommunityService {
     private boolean canCreateCommunity(UserEntity user) {
 
         int countOfCreatedGroups = user.getSetOfCreatedGroups().size();
-        boolean canCreateMoreThanOneCommunity = false;
 
         if (countOfCreatedGroups == 0) return true;
-        // TODO проверка на права создания более одного и комьюнити
+        if (user.getAuthority().ordinal() < 2) return false;
 
-        return canCreateMoreThanOneCommunity && countOfCreatedGroups < COUNT_OF_MAX_COMMUNITIES;
+        return countOfCreatedGroups < COUNT_OF_MAX_COMMUNITIES;
     }
 }
