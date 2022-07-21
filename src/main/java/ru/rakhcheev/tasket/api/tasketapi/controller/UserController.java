@@ -72,6 +72,20 @@ public class UserController {
         }
     }
 
+    @PutMapping
+    public ResponseEntity<String> editUserByAuthentication(Authentication authentication,
+                                                           @RequestBody UserCreationDTO newUserParams) {
+        try {
+            String login = userService.editUserByLogin(authentication.getName(), newUserParams);
+            return new ResponseEntity<>("Данные пользователя " + login + " изменены.", HttpStatus.OK);
+        } catch (UserDatabaseIsEmptyException | UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Попытка ввода несуществующей роли", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
+        }
+    }
     // TODO add edit user by Authentication
 
     @DeleteMapping(value = "/{id}")
