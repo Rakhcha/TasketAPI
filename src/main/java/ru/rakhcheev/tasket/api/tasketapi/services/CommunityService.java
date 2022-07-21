@@ -114,7 +114,10 @@ public class CommunityService {
         UserEntity user = userRepo.findByLogin(authentication.getName());
         CommunityEntity community = getCommunityEntity(id, authentication.getName());
 
-        // TODO if(проверка на роль администратора) communityRepo.delete(community);
+        if(user.getAuthority().ordinal() == 3) {
+            communityRepo.delete(community);
+            return;
+        }
         if (!community.getCreator().equals(user))
             throw new UserHasNotPermission("Только создатель может удалить группу");
         community.setStatusActivity(EntityStatusEnum.DELETED);
