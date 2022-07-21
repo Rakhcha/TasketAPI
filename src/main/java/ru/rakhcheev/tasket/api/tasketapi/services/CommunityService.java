@@ -206,7 +206,11 @@ public class CommunityService {
         if (communityNewData.getCommunityName() != null) community.setCommunityName(communityNewData.getCommunityName());
         if (communityNewData.getIsPrivate() != null) community.setIsPrivate(communityNewData.getIsPrivate());
 
-        // TODO if(проверка на роль администратора) communityRepo.save(community);
+        if (user.getAuthority().ordinal() == 3) {
+            communityRepo.save(community);
+            return;
+        }
+
         if(!community.getCreator().equals(user))
             throw new UserHasNotPermission("Только создатель группы может обновлять данные группы");
 
