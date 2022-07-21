@@ -7,9 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.rakhcheev.tasket.api.tasketapi.dto.user.UserCreationDTO;
 import ru.rakhcheev.tasket.api.tasketapi.dto.user.UserDTO;
+import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.DatabaseIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.UserAlreadyExistException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.UserDatabaseIsEmptyException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.UserNotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.services.UserService;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class UserController {
         try {
             List<UserDTO> users = userService.getAllUsers(showDescription);
             return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (UserDatabaseIsEmptyException e) {
+        } catch (DatabaseIsEmptyException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
@@ -51,7 +51,7 @@ public class UserController {
         try {
             UserDTO user = userService.getUserById(id, showDescription);
             return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (UserDatabaseIsEmptyException | UserNotFoundException e) {
+        } catch (DatabaseIsEmptyException | NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
@@ -64,7 +64,7 @@ public class UserController {
         try {
             String login = userService.editUserById(id, newUserParams);
             return new ResponseEntity<>("Данные пользователя " + login + " изменены.", HttpStatus.OK);
-        } catch (UserDatabaseIsEmptyException | UserNotFoundException e) {
+        } catch (DatabaseIsEmptyException | NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Попытка ввода несуществующей роли", HttpStatus.BAD_REQUEST);
@@ -79,7 +79,7 @@ public class UserController {
         try {
             String login = userService.editUserByLogin(authentication.getName(), newUserParams);
             return new ResponseEntity<>("Данные пользователя " + login + " изменены.", HttpStatus.OK);
-        } catch (UserDatabaseIsEmptyException | UserNotFoundException e) {
+        } catch (DatabaseIsEmptyException | NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Попытка ввода несуществующей роли", HttpStatus.BAD_REQUEST);
@@ -93,7 +93,7 @@ public class UserController {
         try {
             String login = userService.deleteUser(id);
             return ResponseEntity.ok("Пользователь " + login + " удалён.");
-        } catch (UserDatabaseIsEmptyException | UserNotFoundException e) {
+        } catch (DatabaseIsEmptyException | NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);

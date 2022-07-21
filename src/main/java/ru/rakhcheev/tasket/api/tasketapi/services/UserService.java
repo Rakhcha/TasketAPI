@@ -7,9 +7,9 @@ import ru.rakhcheev.tasket.api.tasketapi.dto.user.UserDTO;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
 import ru.rakhcheev.tasket.api.tasketapi.entity.UserEntity;
 import ru.rakhcheev.tasket.api.tasketapi.entity.enums.UserAuthorityEnum;
+import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.DatabaseIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.UserAlreadyExistException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.UserDatabaseIsEmptyException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.UserNotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.repository.UserRepo;
 
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ public class UserService {
         userRepo.save(user);
     }
 
-    public List<UserDTO> getAllUsers(boolean showDescription) throws UserDatabaseIsEmptyException {
+    public List<UserDTO> getAllUsers(boolean showDescription) throws DatabaseIsEmptyException {
         if (!userRepo.findAll().iterator().hasNext())
-            throw new UserDatabaseIsEmptyException("База данных пользователей пуста.");
+            throw new DatabaseIsEmptyException("База данных пользователей пуста.");
         List<UserDTO> userList = new ArrayList<>();
         for (UserEntity user : userRepo.findAll()) {
             if (!showDescription) user.setDescription(null);
@@ -50,25 +50,25 @@ public class UserService {
         return userList;
     }
 
-    public UserDTO getUserById(Long id, boolean showDescription) throws UserDatabaseIsEmptyException, UserNotFoundException {
+    public UserDTO getUserById(Long id, boolean showDescription) throws DatabaseIsEmptyException, NotFoundException {
         UserEntity user = getUserFromDatabase(id);
         if (!showDescription) user.setDescription(null);
         return UserDTO.toDTO(user);
     }
 
     public String editUserByLogin(String userLogin, UserCreationDTO newUserParams)
-            throws UserNotFoundException, UserDatabaseIsEmptyException {
+            throws NotFoundException, DatabaseIsEmptyException {
         UserEntity user = getUserFromDatabase(userLogin);
         return editUser(user, newUserParams);
     }
 
     public String editUserById(Long id, UserCreationDTO newUserParams)
-            throws UserDatabaseIsEmptyException, UserNotFoundException, IllegalArgumentException {
+            throws DatabaseIsEmptyException, NotFoundException, IllegalArgumentException {
         UserEntity user = getUserFromDatabase(id);
         return editUser(user, newUserParams);
     }
 
-    public String deleteUser(Long id) throws UserDatabaseIsEmptyException, UserNotFoundException {
+    public String deleteUser(Long id) throws DatabaseIsEmptyException, NotFoundException {
         UserEntity user = getUserFromDatabase(id);
         userRepo.delete(user);
         return user.getLogin();
@@ -87,20 +87,20 @@ public class UserService {
         return user.getLogin();
     }
 
-    private UserEntity getUserFromDatabase(Long id) throws UserDatabaseIsEmptyException, UserNotFoundException {
+    private UserEntity getUserFromDatabase(Long id) throws DatabaseIsEmptyException, NotFoundException {
         if (!userRepo.findAll().iterator().hasNext())
-            throw new UserDatabaseIsEmptyException("База данных пользователей пуста");
+            throw new DatabaseIsEmptyException("База данных пользователей пуста");
         Optional<UserEntity> userEntityOptional = userRepo.findById(id);
         if (userEntityOptional.isEmpty())
-            throw new UserNotFoundException("Пользователь с идентификатором" + id + " не найден");
+            throw new NotFoundException("Пользователь с идентификатором" + id + " не найден");
         return userEntityOptional.get();
     }
 
-    private UserEntity getUserFromDatabase(String login) throws UserDatabaseIsEmptyException, UserNotFoundException {
+    private UserEntity getUserFromDatabase(String login) throws DatabaseIsEmptyException, NotFoundException {
         if (!userRepo.findAll().iterator().hasNext())
-            throw new UserDatabaseIsEmptyException("База данных пользователей пуста");
+            throw new DatabaseIsEmptyException("База данных пользователей пуста");
         UserEntity userEntity = userRepo.findByLogin(login);
-        if (userEntity == null) throw new UserNotFoundException("Пользователь " + login + " не найден");
+        if (userEntity == null) throw new NotFoundException("Пользователь " + login + " не найден");
         return userEntity;
     }
 

@@ -2,8 +2,8 @@ package ru.rakhcheev.tasket.api.tasketapi.services;
 
 import org.springframework.stereotype.Service;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
-import ru.rakhcheev.tasket.api.tasketapi.exception.DescriptionIsNotFoundException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.TableIsEmptyException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.DatabaseIsEmptyException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.repository.DescriptionRepo;
 import ru.rakhcheev.tasket.api.tasketapi.repository.UserRepo;
 
@@ -20,21 +20,25 @@ public class DescriptionService {
         this.userRepo = userRepo;
     }
 
-    public DescriptionEntity getByUserId(Long user_id) throws TableIsEmptyException, DescriptionIsNotFoundException {
+    public DescriptionEntity getByUserId(Long user_id)
+            throws DatabaseIsEmptyException, NotFoundException {
         return getDescriptionFromDatabase(user_id);
     }
 
-    public void updateDescriptionByLogin(String login, DescriptionEntity newDescriptionEntity) throws TableIsEmptyException, DescriptionIsNotFoundException {
+    public void updateDescriptionByLogin(String login, DescriptionEntity newDescriptionEntity)
+            throws DatabaseIsEmptyException, NotFoundException {
         Long id = userRepo.findByLogin(login).getId();
         updateDescription(id, newDescriptionEntity);
     }
 
-    public void updateDescriptionById(Long id, DescriptionEntity newDescriptionEntity) throws TableIsEmptyException, DescriptionIsNotFoundException {
+    public void updateDescriptionById(Long id, DescriptionEntity newDescriptionEntity)
+            throws DatabaseIsEmptyException, NotFoundException {
         updateDescription(id, newDescriptionEntity);
     }
 
 
-    private void updateDescription(Long id, DescriptionEntity newDescriptionEntity) throws TableIsEmptyException, DescriptionIsNotFoundException {
+    private void updateDescription(Long id, DescriptionEntity newDescriptionEntity)
+            throws DatabaseIsEmptyException, NotFoundException {
         DescriptionEntity entity = getDescriptionFromDatabase(id);
         if (newDescriptionEntity.getAbout() != null) entity.setAbout(newDescriptionEntity.getAbout());
         if (newDescriptionEntity.getCity() != null) entity.setCity(newDescriptionEntity.getCity());
@@ -44,12 +48,13 @@ public class DescriptionService {
         descriptionRepo.save(entity);
     }
 
-    private DescriptionEntity getDescriptionFromDatabase(Long user_id) throws TableIsEmptyException, DescriptionIsNotFoundException {
+    private DescriptionEntity getDescriptionFromDatabase(Long user_id)
+            throws DatabaseIsEmptyException, NotFoundException {
         if (!descriptionRepo.findAll().iterator().hasNext())
-            throw new TableIsEmptyException("Информации о пользователях не существует.");
+            throw new DatabaseIsEmptyException("Информации о пользователях не существует.");
         Optional<DescriptionEntity> descriptionEntityOptional = descriptionRepo.findById(user_id);
         if (descriptionEntityOptional.isEmpty())
-            throw new DescriptionIsNotFoundException("Информации о данном пользователе нет (Пользователя с таким id не существует).");
+            throw new NotFoundException("Информации о данном пользователе нет (Пользователя с таким id не существует).");
         return descriptionEntityOptional.get();
     }
 
