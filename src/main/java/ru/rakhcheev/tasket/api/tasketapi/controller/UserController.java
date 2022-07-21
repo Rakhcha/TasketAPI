@@ -3,6 +3,7 @@ package ru.rakhcheev.tasket.api.tasketapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.rakhcheev.tasket.api.tasketapi.dto.user.UserCreationDTO;
 import ru.rakhcheev.tasket.api.tasketapi.dto.user.UserDTO;
@@ -61,7 +62,7 @@ public class UserController {
     public ResponseEntity<String> editUser(@PathVariable Long id,
                                            @RequestBody UserCreationDTO newUserParams) {
         try {
-            String login = userService.editUser(id, newUserParams);
+            String login = userService.editUserById(id, newUserParams);
             return new ResponseEntity<>("Данные пользователя " + login + " изменены.", HttpStatus.OK);
         } catch (UserDatabaseIsEmptyException | UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -86,7 +87,6 @@ public class UserController {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
         }
     }
-    // TODO add edit user by Authentication
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
