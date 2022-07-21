@@ -56,30 +56,34 @@ public class UserService {
         return UserDTO.toDTO(user);
     }
 
-    public UserDTO getUserByLogin(String login, boolean showDescription) throws UserDatabaseIsEmptyException, UserNotFoundException {
-        UserEntity user = getUserFromDatabase(login);
-        if (!showDescription) user.setDescription(null);
-        return UserDTO.toDTO(user);
+    public String editUserByLogin(String userLogin, UserCreationDTO newUserParams)
+            throws UserNotFoundException, UserDatabaseIsEmptyException {
+        UserEntity user = getUserFromDatabase(userLogin);
+        return editUser(user, newUserParams);
     }
 
-    public String editUser(Long id, UserCreationDTO newUserParams)
+    public String editUserById(Long id, UserCreationDTO newUserParams)
             throws UserDatabaseIsEmptyException, UserNotFoundException, IllegalArgumentException {
         UserEntity user = getUserFromDatabase(id);
-        if (newUserParams.getLogin() != null) user.setLogin(newUserParams.getLogin());
-        if (newUserParams.getEmail() != null) user.setEmail(newUserParams.getEmail());
-        if (newUserParams.getPassword() != null)
-            user.setPassword(bCryptPasswordEncoder.encode(newUserParams.getPassword()));
-        if (newUserParams.getRole() != null){
-            UserAuthorityEnum role = UserAuthorityEnum.valueOf(newUserParams.getRole().toUpperCase());
-            user.setAuthority(role);
-        }
-        userRepo.save(user);
-        return user.getLogin();
+        return editUser(user, newUserParams);
     }
 
     public String deleteUser(Long id) throws UserDatabaseIsEmptyException, UserNotFoundException {
         UserEntity user = getUserFromDatabase(id);
         userRepo.delete(user);
+        return user.getLogin();
+    }
+
+    private String editUser(UserEntity user, UserCreationDTO newUserParams) {
+        if (newUserParams.getLogin() != null) user.setLogin(newUserParams.getLogin());
+        if (newUserParams.getEmail() != null) user.setEmail(newUserParams.getEmail());
+        if (newUserParams.getPassword() != null)
+            user.setPassword(bCryptPasswordEncoder.encode(newUserParams.getPassword()));
+        if (newUserParams.getRole() != null) {
+            UserAuthorityEnum role = UserAuthorityEnum.valueOf(newUserParams.getRole().toUpperCase());
+            user.setAuthority(role);
+        }
+        userRepo.save(user);
         return user.getLogin();
     }
 
