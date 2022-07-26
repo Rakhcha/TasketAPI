@@ -34,13 +34,13 @@ public class CommunityService {
     }
 
     public void addCommunity(CommunityCreationDTO community, Authentication authentication)
-            throws UserHasNotPermission, CommunityAlreadyExistException {
+            throws UserHasNotPermission, AlreadyExistException {
 
         UserEntity user = userRepo.findByLogin(authentication.getName());
 
         if (!canCreateCommunity(user)) throw new UserHasNotPermission("Исчерпан лимит созданных груп");
         if (communityRepo.findByCommunityName(community.getCommunityName()) != null)
-            throw new CommunityAlreadyExistException(community.getCommunityName());
+            throw new AlreadyExistException("Название \"" + community.getCommunityName() + "\" занято.");
 
         CommunityEntity communityEntity = CommunityCreationDTO.toEntity(community);
         communityEntity.setCreator(user);
@@ -152,7 +152,7 @@ public class CommunityService {
     }
 
     public void joinWithInviteKey(String inviteKey, Authentication authentication)
-            throws NotFoundException, UserAlreadyExistException {
+            throws NotFoundException, AlreadyExistException {
         UserEntity user;
         CommunityUrlEntity urlEntity = communityUrlRepo.findByUrlParam(inviteKey);
         CommunityEntity community;
@@ -171,7 +171,7 @@ public class CommunityService {
             throw new NotFoundException("Группа с id: " + community.getCommunityId() + " не найдена.");
 
         if (community.getUsersSet().contains(user))
-            throw new UserAlreadyExistException("Данный пользователь уже состоит в группе");
+            throw new AlreadyExistException("Данный пользователь уже состоит в группе");
 
         community.getUsersSet().add(user);
         communityRepo.save(community);
@@ -182,14 +182,14 @@ public class CommunityService {
     }
 
     public void joinPublicCommunity(Long id, Authentication authentication)
-            throws NotFoundException, UserHasNotPermission, UserAlreadyExistException {
+            throws NotFoundException, UserHasNotPermission, AlreadyExistException {
         UserEntity user;
         CommunityEntity community;
 
         community = getCommunityEntity(id, authentication.getName());
         user = userRepo.findByLogin(authentication.getName());
         if (community.getUsersSet().contains(user))
-            throw new UserAlreadyExistException("Данный пользователь уже состоит в группе");
+            throw new AlreadyExistException("Данный пользователь уже состоит в группе");
         if (community.getIsPrivate())
             throw new UserHasNotPermission("Нет прав для доступа, так как данная группа приватная");
 

@@ -31,7 +31,7 @@ public class CommunityController {
             return new ResponseEntity<>("Группа" + community.getCommunityName() + " добавлена.", HttpStatus.OK);
         } catch (UserHasNotPermission e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        } catch (CommunityAlreadyExistException e) {
+        } catch (AlreadyExistException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -125,7 +125,7 @@ public class CommunityController {
         try {
             communityService.joinPublicCommunity(id, authentication);
             return new ResponseEntity<>("Пользователь добавлен в группу", HttpStatus.OK);
-        } catch (UserAlreadyExistException e) {
+        } catch (AlreadyExistException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -144,7 +144,7 @@ public class CommunityController {
             return new ResponseEntity<>("Пользователь добавлен в группу", HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (UserAlreadyExistException e) {
+        } catch (AlreadyExistException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);

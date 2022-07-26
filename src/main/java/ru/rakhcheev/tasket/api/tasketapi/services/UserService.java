@@ -7,9 +7,9 @@ import ru.rakhcheev.tasket.api.tasketapi.dto.user.UserDTO;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
 import ru.rakhcheev.tasket.api.tasketapi.entity.UserEntity;
 import ru.rakhcheev.tasket.api.tasketapi.entity.enums.UserAuthorityEnum;
-import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.AlreadyExistException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.DatabaseIsEmptyException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.UserAlreadyExistException;
+import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.repository.UserRepo;
 
 import java.util.ArrayList;
@@ -27,9 +27,10 @@ public class UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    public void addUser(UserCreationDTO userDTO) throws UserAlreadyExistException {
+    public void addUser(UserCreationDTO userDTO)
+            throws AlreadyExistException {
         if (userRepo.findByLogin(userDTO.getLogin()) != null)
-            throw new UserAlreadyExistException("Пользователь под логином " + userDTO.getLogin() + " уже существует.");
+            throw new AlreadyExistException("Пользователь под логином " + userDTO.getLogin() + " уже существует.");
 
         DescriptionEntity descriptionEntity = new DescriptionEntity();
         UserEntity user = UserCreationDTO.toEntity(userDTO);
