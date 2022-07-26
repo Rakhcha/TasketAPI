@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.rakhcheev.tasket.api.tasketapi.dto.description.DescriptionDTO;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
-import ru.rakhcheev.tasket.api.tasketapi.exception.DatabaseIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.services.DescriptionService;
 
@@ -29,7 +28,7 @@ public class DescriptionController {
         try {
             DescriptionDTO descriptionDTO = DescriptionDTO.toDTO(descriptionService.getByUserId(id));
             return new ResponseEntity<>(descriptionDTO, HttpStatus.OK);
-        } catch (NotFoundException | DatabaseIsEmptyException e) {
+        } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
@@ -42,7 +41,7 @@ public class DescriptionController {
         try {
             descriptionService.updateDescriptionById(id, newDescriptionEntity);
             return new ResponseEntity<>("Ваши данные обновлены", HttpStatus.OK);
-        } catch (NotFoundException | DatabaseIsEmptyException e) {
+        } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);
@@ -55,7 +54,7 @@ public class DescriptionController {
         try {
             descriptionService.updateDescriptionByLogin(authentication.getName(), newDescriptionEntity);
             return new ResponseEntity<>("Ваши данные обновлены", HttpStatus.OK);
-        } catch (NotFoundException | DatabaseIsEmptyException e) {
+        } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getCause(), HttpStatus.BAD_REQUEST);

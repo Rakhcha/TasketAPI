@@ -46,8 +46,6 @@ public class CommunityController {
             return new ResponseEntity<>(communityList, HttpStatus.OK);
         } catch (CommunityEnumTypeIsNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (DatabaseIsEmptyException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Произошла непредвиденная ошибка: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }

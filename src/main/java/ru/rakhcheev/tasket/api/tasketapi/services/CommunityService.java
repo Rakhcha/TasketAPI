@@ -54,7 +54,7 @@ public class CommunityService {
 
 
     public List<CommunityInfoDTO> getCommunities(String type, Authentication authentication)
-            throws CommunityEnumTypeIsNotFoundException, DatabaseIsEmptyException {
+            throws CommunityEnumTypeIsNotFoundException {
         CommunitySearchTypeEnum communityTypeEnum;
         Iterable<CommunityEntity> communitiesIterableList;
         List<CommunityInfoDTO> communitiesList;
@@ -68,9 +68,6 @@ public class CommunityService {
 
         communitiesList = new ArrayList<>();
         communitiesIterableList = communityRepo.findAll();
-
-        if (!communitiesIterableList.iterator().hasNext())
-            throw new DatabaseIsEmptyException("Ни одной группы не создано");
 
         switch (communityTypeEnum) {
             case JOINED:

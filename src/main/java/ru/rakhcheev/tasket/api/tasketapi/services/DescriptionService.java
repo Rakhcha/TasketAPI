@@ -2,7 +2,6 @@ package ru.rakhcheev.tasket.api.tasketapi.services;
 
 import org.springframework.stereotype.Service;
 import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
-import ru.rakhcheev.tasket.api.tasketapi.exception.DatabaseIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.repository.DescriptionRepo;
 import ru.rakhcheev.tasket.api.tasketapi.repository.UserRepo;
@@ -21,24 +20,23 @@ public class DescriptionService {
     }
 
     public DescriptionEntity getByUserId(Long user_id)
-            throws DatabaseIsEmptyException, NotFoundException {
+            throws NotFoundException {
         return getDescriptionFromDatabase(user_id);
     }
 
     public void updateDescriptionByLogin(String login, DescriptionEntity newDescriptionEntity)
-            throws DatabaseIsEmptyException, NotFoundException {
+            throws NotFoundException {
         Long id = userRepo.findByLogin(login).getId();
         updateDescription(id, newDescriptionEntity);
     }
 
     public void updateDescriptionById(Long id, DescriptionEntity newDescriptionEntity)
-            throws DatabaseIsEmptyException, NotFoundException {
+            throws NotFoundException {
         updateDescription(id, newDescriptionEntity);
     }
 
-
     private void updateDescription(Long id, DescriptionEntity newDescriptionEntity)
-            throws DatabaseIsEmptyException, NotFoundException {
+            throws NotFoundException {
         DescriptionEntity entity = getDescriptionFromDatabase(id);
         if (newDescriptionEntity.getAbout() != null) entity.setAbout(newDescriptionEntity.getAbout());
         if (newDescriptionEntity.getCity() != null) entity.setCity(newDescriptionEntity.getCity());
@@ -49,9 +47,7 @@ public class DescriptionService {
     }
 
     private DescriptionEntity getDescriptionFromDatabase(Long user_id)
-            throws DatabaseIsEmptyException, NotFoundException {
-        if (!descriptionRepo.findAll().iterator().hasNext())
-            throw new DatabaseIsEmptyException("Информации о пользователях не существует.");
+            throws NotFoundException {
         Optional<DescriptionEntity> descriptionEntityOptional = descriptionRepo.findById(user_id);
         if (descriptionEntityOptional.isEmpty())
             throw new NotFoundException("Информации о данном пользователе нет (Пользователя с таким id не существует).");

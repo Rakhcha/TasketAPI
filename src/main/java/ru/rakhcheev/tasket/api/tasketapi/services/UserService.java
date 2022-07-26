@@ -8,7 +8,6 @@ import ru.rakhcheev.tasket.api.tasketapi.entity.DescriptionEntity;
 import ru.rakhcheev.tasket.api.tasketapi.entity.UserEntity;
 import ru.rakhcheev.tasket.api.tasketapi.entity.enums.UserAuthorityEnum;
 import ru.rakhcheev.tasket.api.tasketapi.exception.AlreadyExistException;
-import ru.rakhcheev.tasket.api.tasketapi.exception.DatabaseIsEmptyException;
 import ru.rakhcheev.tasket.api.tasketapi.exception.NotFoundException;
 import ru.rakhcheev.tasket.api.tasketapi.repository.UserRepo;
 
@@ -40,9 +39,7 @@ public class UserService {
         userRepo.save(user);
     }
 
-    public List<UserDTO> getAllUsers(boolean showDescription) throws DatabaseIsEmptyException {
-        if (!userRepo.findAll().iterator().hasNext())
-            throw new DatabaseIsEmptyException("База данных пользователей пуста.");
+    public List<UserDTO> getAllUsers(boolean showDescription){
         List<UserDTO> userList = new ArrayList<>();
         for (UserEntity user : userRepo.findAll()) {
             if (!showDescription) user.setDescription(null);
@@ -51,25 +48,25 @@ public class UserService {
         return userList;
     }
 
-    public UserDTO getUserById(Long id, boolean showDescription) throws DatabaseIsEmptyException, NotFoundException {
+    public UserDTO getUserById(Long id, boolean showDescription) throws NotFoundException {
         UserEntity user = getUserFromDatabase(id);
         if (!showDescription) user.setDescription(null);
         return UserDTO.toDTO(user);
     }
 
     public String editUserByLogin(String userLogin, UserCreationDTO newUserParams)
-            throws NotFoundException, DatabaseIsEmptyException {
+            throws NotFoundException {
         UserEntity user = getUserFromDatabase(userLogin);
         return editUser(user, newUserParams);
     }
 
     public String editUserById(Long id, UserCreationDTO newUserParams)
-            throws DatabaseIsEmptyException, NotFoundException, IllegalArgumentException {
+            throws NotFoundException, IllegalArgumentException {
         UserEntity user = getUserFromDatabase(id);
         return editUser(user, newUserParams);
     }
 
-    public String deleteUser(Long id) throws DatabaseIsEmptyException, NotFoundException {
+    public String deleteUser(Long id) throws NotFoundException {
         UserEntity user = getUserFromDatabase(id);
         userRepo.delete(user);
         return user.getLogin();
@@ -88,18 +85,14 @@ public class UserService {
         return user.getLogin();
     }
 
-    private UserEntity getUserFromDatabase(Long id) throws DatabaseIsEmptyException, NotFoundException {
-        if (!userRepo.findAll().iterator().hasNext())
-            throw new DatabaseIsEmptyException("База данных пользователей пуста");
+    private UserEntity getUserFromDatabase(Long id) throws NotFoundException {
         Optional<UserEntity> userEntityOptional = userRepo.findById(id);
         if (userEntityOptional.isEmpty())
             throw new NotFoundException("Пользователь с идентификатором" + id + " не найден");
         return userEntityOptional.get();
     }
 
-    private UserEntity getUserFromDatabase(String login) throws DatabaseIsEmptyException, NotFoundException {
-        if (!userRepo.findAll().iterator().hasNext())
-            throw new DatabaseIsEmptyException("База данных пользователей пуста");
+    private UserEntity getUserFromDatabase(String login) throws NotFoundException {
         UserEntity userEntity = userRepo.findByLogin(login);
         if (userEntity == null) throw new NotFoundException("Пользователь " + login + " не найден");
         return userEntity;
