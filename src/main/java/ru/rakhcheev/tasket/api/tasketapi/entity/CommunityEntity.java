@@ -15,7 +15,7 @@ public class CommunityEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long communityId;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String communityName;
@@ -33,7 +33,7 @@ public class CommunityEntity {
 
     // TODO Разобраться с каскадом
     @ManyToMany
-    @JoinTable(name = "users_groups",
+    @JoinTable(name = "group_user",
             joinColumns = @JoinColumn(name = "community_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEntity> usersSet;
@@ -43,11 +43,11 @@ public class CommunityEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CommunityEntity that = (CommunityEntity) o;
-        return communityId.equals(that.communityId) && communityName.equals(that.communityName) && isPrivate.equals(that.isPrivate) && creator.getLogin().equals(that.creator.getLogin());
+        return id.equals(that.id) && communityName.equals(that.communityName) && isPrivate.equals(that.isPrivate) && creator.getLogin().equals(that.creator.getLogin());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(communityId, communityName, isPrivate, creator.getLogin());
+        return Objects.hash(id, communityName, isPrivate, creator.getLogin());
     }
 }

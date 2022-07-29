@@ -1,6 +1,5 @@
 package ru.rakhcheev.tasket.api.tasketapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -12,7 +11,7 @@ public class DescriptionEntity {
 
     @Id
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Long id;
 
     @Column(name = "name")
     private String name;

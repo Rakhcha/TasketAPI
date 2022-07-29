@@ -14,7 +14,7 @@ public class CommunityInfoDTO {
 
     public static CommunityInfoDTO toDTO(CommunityEntity entity) {
         CommunityInfoDTO communityDTO = new CommunityInfoDTO();
-        communityDTO.setCommunityID(entity.getCommunityId());
+        communityDTO.setCommunityID(entity.getId());
         communityDTO.setCommunityName(entity.getCommunityName());
         communityDTO.setCreatorLogin(entity.getCreator().getLogin());
         communityDTO.setIsPrivate(entity.getIsPrivate());
