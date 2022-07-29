@@ -124,7 +124,7 @@ public class CommunityService {
     public CommunityUrlDTO addInviteUrl(CommunityCreateUrlDTO communityCreateUrlDTO, Authentication authentication)
             throws CommunityHasTooManyUrlsException, NotFoundException, UserHasNotPermission {
 
-        CommunityUrlEntity url;
+        InviteUrlEntity url;
         UserEntity user = userRepo.findByLogin(authentication.getName());
         CommunityEntity community = getCommunityEntity(communityCreateUrlDTO.getCommunityId(), user.getLogin());
         String dateTimeString;
@@ -134,7 +134,7 @@ public class CommunityService {
 
         if (communityUrlRepo.findAllByCommunity(community).size() >= 5) throw new CommunityHasTooManyUrlsException();
 
-        url = new CommunityUrlEntity(community);
+        url = new InviteUrlEntity(community);
         while (communityUrlRepo.findByUrlParam(url.getUrlParam()) != null) url.regenerateUrlParam();
 
         dateTimeString = communityCreateUrlDTO.getDestroyDate();
@@ -151,7 +151,7 @@ public class CommunityService {
     public void joinWithInviteKey(String inviteKey, Authentication authentication)
             throws NotFoundException, AlreadyExistException {
         UserEntity user;
-        CommunityUrlEntity urlEntity = communityUrlRepo.findByUrlParam(inviteKey);
+        InviteUrlEntity urlEntity = communityUrlRepo.findByUrlParam(inviteKey);
         CommunityEntity community;
 
         if (urlEntity.getStatus().equals(EntityStatusEnum.DELETED))
@@ -165,7 +165,7 @@ public class CommunityService {
         community = urlEntity.getCommunity();
 
         if (community.getStatusActivity().ordinal() == 3)
-            throw new NotFoundException("Группа с id: " + community.getCommunityId() + " не найдена.");
+            throw new NotFoundException("Группа с id: " + community.getId() + " не найдена.");
 
         if (community.getUsersSet().contains(user))
             throw new AlreadyExistException("Данный пользователь уже состоит в группе");
