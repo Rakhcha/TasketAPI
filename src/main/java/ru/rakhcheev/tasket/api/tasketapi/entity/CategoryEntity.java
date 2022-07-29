@@ -3,14 +3,16 @@ package ru.rakhcheev.tasket.api.tasketapi.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "categories")
-public class CategoriesEntity {
+@Table(name = "category")
+public class CategoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "title")
@@ -32,6 +34,9 @@ public class CategoriesEntity {
 
     // задания
 
-    // пользователи
-
+    @ManyToMany
+    @JoinTable(name = "category_user",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserEntity> users;
 }
