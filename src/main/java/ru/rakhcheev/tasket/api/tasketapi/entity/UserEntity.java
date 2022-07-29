@@ -35,10 +35,17 @@ public class UserEntity {
 
     // TODO Разобраться с каскадом
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "users_groups",
+    @JoinTable(name = "group_user",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "community_id"))
     private Set<CommunityEntity> groupSet;
+
+    // TODO Разобраться с каскадом
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "category_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<CategoryEntity> categorySet;
 
     // TODO Разобраться с каскадом
     @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY)
