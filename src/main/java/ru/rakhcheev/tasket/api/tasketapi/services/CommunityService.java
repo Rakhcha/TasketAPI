@@ -229,7 +229,7 @@ public class CommunityService {
             throw new NotFoundException("Группы с id: " + id + " не найдена или удалена.");
         user = userRepo.findByLogin(userLogin);
 
-        // обратная импликация
+        // отрицание прямой импликации
         if (community.getIsPrivate() && !community.getUsersSet().contains(user))
             throw new UserHasNotPermission("Нет прав для доступа к группе");
 
