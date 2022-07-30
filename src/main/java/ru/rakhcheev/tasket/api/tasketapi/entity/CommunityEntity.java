@@ -38,6 +38,9 @@ public class CommunityEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEntity> usersSet;
 
+    @OneToMany(mappedBy = "community", fetch = FetchType.LAZY)
+    private Set<CategoryEntity> categoryEntities;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
