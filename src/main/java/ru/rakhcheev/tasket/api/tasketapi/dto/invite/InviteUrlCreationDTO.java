@@ -1,4 +1,4 @@
-package ru.rakhcheev.tasket.api.tasketapi.dto.community;
+package ru.rakhcheev.tasket.api.tasketapi.dto.invite;
 
 import lombok.Data;
 

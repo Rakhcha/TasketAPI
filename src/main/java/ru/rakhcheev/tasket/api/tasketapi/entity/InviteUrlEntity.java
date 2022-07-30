@@ -35,7 +35,7 @@ public class InviteUrlEntity {
     private CommunityEntity community;
 
     @ManyToMany
-    @JoinTable(name = "included_category",
+    @JoinTable(name = "invite_url_categories",
             joinColumns = @JoinColumn(name = "invite_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<CategoryEntity> categorySet;
