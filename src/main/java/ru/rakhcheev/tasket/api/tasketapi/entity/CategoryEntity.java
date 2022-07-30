@@ -32,6 +32,10 @@ public class CategoryEntity {
     @JoinColumn(name = "leader_id")
     private UserEntity leader;
 
+    @ManyToOne
+    @JoinColumn(name = "community_id")
+    private CommunityEntity community;
+
     // задания
 
     @ManyToMany
