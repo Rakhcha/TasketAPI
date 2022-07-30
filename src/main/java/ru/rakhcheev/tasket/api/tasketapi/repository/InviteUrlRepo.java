@@ -6,7 +6,7 @@ import ru.rakhcheev.tasket.api.tasketapi.entity.InviteUrlEntity;
 
 import java.util.List;
 
-public interface CommunityUrlRepo extends CrudRepository<InviteUrlEntity, Long> {
+public interface InviteUrlRepo extends CrudRepository<InviteUrlEntity, Long> {
     InviteUrlEntity findByUrlParam(String urlParam);
     List<InviteUrlEntity> findAllByCommunity(CommunityEntity community);
 }

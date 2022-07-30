@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.rakhcheev.tasket.api.tasketapi.dto.community.*;
+import ru.rakhcheev.tasket.api.tasketapi.dto.invite.InviteUrlCreationDTO;
+import ru.rakhcheev.tasket.api.tasketapi.dto.invite.InviteUrlDTO;
 import ru.rakhcheev.tasket.api.tasketapi.exception.*;
 import ru.rakhcheev.tasket.api.tasketapi.services.CommunityService;
 
@@ -80,10 +82,10 @@ public class CommunityController {
     }
 
     @PostMapping(value = "/url")
-    public ResponseEntity<?> addUrlForJoinCommunityById(@RequestBody CommunityCreateUrlDTO communityCreateUrlDTO,
+    public ResponseEntity<?> addUrlForJoinCommunityById(@RequestBody InviteUrlCreationDTO communityCreateUrlDTO,
                                                         Authentication authentication) {
         try {
-            CommunityUrlDTO communityUrlDTO = communityService.addInviteUrl(
+            InviteUrlDTO communityUrlDTO = communityService.addInviteUrl(
                     communityCreateUrlDTO,
                     authentication
             );

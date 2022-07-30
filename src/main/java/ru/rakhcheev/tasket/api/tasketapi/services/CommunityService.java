@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.rakhcheev.tasket.api.tasketapi.dto.community.*;
+import ru.rakhcheev.tasket.api.tasketapi.dto.invite.InviteUrlCreationDTO;
+import ru.rakhcheev.tasket.api.tasketapi.dto.invite.InviteUrlDTO;
 import ru.rakhcheev.tasket.api.tasketapi.entity.*;
 import ru.rakhcheev.tasket.api.tasketapi.entity.enums.CommunitySearchTypeEnum;
 import ru.rakhcheev.tasket.api.tasketapi.entity.enums.EntityStatusEnum;
 import ru.rakhcheev.tasket.api.tasketapi.exception.*;
 import ru.rakhcheev.tasket.api.tasketapi.repository.CommunityRepo;
-import ru.rakhcheev.tasket.api.tasketapi.repository.CommunityUrlRepo;
+import ru.rakhcheev.tasket.api.tasketapi.repository.InviteUrlRepo;
 import ru.rakhcheev.tasket.api.tasketapi.repository.UserRepo;
 
 import java.time.LocalDateTime;
@@ -21,16 +23,16 @@ public class CommunityService {
 
     private final UserRepo userRepo;
     private final CommunityRepo communityRepo;
-    private final CommunityUrlRepo communityUrlRepo;
+    private final InviteUrlRepo inviteUrlRepo;
 
     @Value("${community.count.max}")
     private int COUNT_OF_MAX_COMMUNITIES;
 
     @Autowired
-    public CommunityService(UserRepo userRepo, CommunityRepo communityRepo, CommunityUrlRepo communityUrlRepo) {
+    public CommunityService(UserRepo userRepo, CommunityRepo communityRepo, InviteUrlRepo communityUrlRepo) {
         this.userRepo = userRepo;
         this.communityRepo = communityRepo;
-        this.communityUrlRepo = communityUrlRepo;
+        this.inviteUrlRepo = communityUrlRepo;
     }
 
     public void addCommunity(CommunityCreationDTO community, Authentication authentication)
@@ -121,7 +123,7 @@ public class CommunityService {
         communityRepo.save(community);
     }
 
-    public CommunityUrlDTO addInviteUrl(CommunityCreateUrlDTO communityCreateUrlDTO, Authentication authentication)
+    public InviteUrlDTO addInviteUrl(InviteUrlCreationDTO communityCreateUrlDTO, Authentication authentication)
             throws CommunityHasTooManyUrlsException, NotFoundException, UserHasNotPermission {
 
         InviteUrlEntity url;
@@ -132,10 +134,10 @@ public class CommunityService {
         if(!community.getCreator().equals(user))
             throw new UserHasNotPermission("Только создатель группы может создавать пригласительные ссылки");
 
-        if (communityUrlRepo.findAllByCommunity(community).size() >= 5) throw new CommunityHasTooManyUrlsException();
+        if (inviteUrlRepo.findAllByCommunity(community).size() >= 5) throw new CommunityHasTooManyUrlsException();
 
         url = new InviteUrlEntity(community);
-        while (communityUrlRepo.findByUrlParam(url.getUrlParam()) != null) url.regenerateUrlParam();
+        while (inviteUrlRepo.findByUrlParam(url.getUrlParam()) != null) url.regenerateUrlParam();
 
         dateTimeString = communityCreateUrlDTO.getDestroyDate();
         url.setDestroyDate(
@@ -144,14 +146,14 @@ public class CommunityService {
                         : LocalDateTime.parse(dateTimeString)
         );
         if (communityCreateUrlDTO.getOnceUsed() != null) url.setOnceUsed(communityCreateUrlDTO.getOnceUsed());
-        communityUrlRepo.save(url);
-        return CommunityUrlDTO.toDTO(url);
+        inviteUrlRepo.save(url);
+        return InviteUrlDTO.toDTO(url);
     }
 
     public void joinWithInviteKey(String inviteKey, Authentication authentication)
             throws NotFoundException, AlreadyExistException {
         UserEntity user;
-        InviteUrlEntity urlEntity = communityUrlRepo.findByUrlParam(inviteKey);
+        InviteUrlEntity urlEntity = inviteUrlRepo.findByUrlParam(inviteKey);
         CommunityEntity community;
 
         if (urlEntity.getStatus().equals(EntityStatusEnum.DELETED))
@@ -174,7 +176,7 @@ public class CommunityService {
         communityRepo.save(community);
         if (urlEntity.getOnceUsed()) {
             urlEntity.setStatus(EntityStatusEnum.DELETED);
-            communityUrlRepo.save(urlEntity);
+            inviteUrlRepo.save(urlEntity);
         }
     }
 
